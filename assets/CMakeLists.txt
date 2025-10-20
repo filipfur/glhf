@@ -1,0 +1,11 @@
+embed_asset_library(glhf_assets
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/object.vert
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/anim.vert
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/inst.vert
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/anim_tbn.vert
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/object.frag
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/object_normal.frag
+    ${CMAKE_CURRENT_SOURCE_DIR}/objects/cube.glb
+    ${CMAKE_CURRENT_SOURCE_DIR}/objects/joyful_vampire.glb
+)
+
