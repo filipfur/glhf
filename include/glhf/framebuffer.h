@@ -1,6 +1,7 @@
 #pragma once
 
 #include "glhf/texture.h"
+#include <memory>
 #include <unordered_map>
 
 namespace glhf {

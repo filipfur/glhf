@@ -62,7 +62,7 @@ jobs:
     - name: Install dependencies (Windows)
       if: startsWith(matrix.os, 'windows')
       run: |
-        choco install sdl2 glew cmake ninja -y
+        choco install sdl2 glew ninja -y
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
