@@ -1,5 +1,6 @@
 #include "embed.h"
 #include <cstdio>
+#include <cstring>
 #include <filesystem>
 #include <string>
 #include <string_view>
