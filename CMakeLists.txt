@@ -34,10 +34,12 @@ add_library(glhf
 target_include_directories(glhf PUBLIC ${SDL2_INCLUDE_DIR} include)
 target_link_libraries(glhf PUBLIC glm stb ${SDL2_LIBRARY} GLEW::GLEW OpenGL::GL)
 
-if (MSVC)
-    target_compile_options(glhf PRIVATE /W4)
-else()
+if(UNIX)
     target_compile_options(glhf PRIVATE -Wall -Wextra)
+elseif(MSVC)
+    target_compile_options(glhf PRIVATE /W2)
+else()
+    message(FATAL_ERROR "Unknown target")
 endif()
 
 add_subdirectory(tools/embed)

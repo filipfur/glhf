@@ -50,9 +50,20 @@ jobs:
         submodules: recursive
 
     - name: Setup vcpkg
+      if: startsWith(matrix.os, 'windows')
       uses: lukka/run-vcpkg@v11
       with:
         vcpkgJsonGlob: '**/vcpkg.json'
+
+    - name: Install dependencies (Linux)
+      if: startsWith(matrix.os, 'ubuntu')
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libsdl2-dev \
+          libglew-dev \
+          cmake \
+          ninja-build
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
