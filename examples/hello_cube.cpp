@@ -9,6 +9,7 @@
 #include "glhf/time.h"
 #include <glm/glm.hpp>
 #include <list>
+#include <memory>
 
 extern const uint8_t _embed_object_vert[];
 extern const uint8_t _embed_object_frag[];

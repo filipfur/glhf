@@ -215,8 +215,12 @@ struct Application : public glhf::IApplication {
         .u_view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                               glm::vec3(0.0f, 1.0f, 0.0f)),
         .u_eye = glm::vec3{0.0f, 0.0f, 1.0f},
+        .padding = 0.0f,
     };
-    MaterialBlock _materialBlock{.u_color = {1.0f, 0.0f, 1.0f}};
+    MaterialBlock _materialBlock{
+        .u_color = {1.0f, 0.0f, 1.0f},
+        .padding = 0.0f,
+    };
     std::shared_ptr<glhf::ShaderProgram> _triShader;
     std::shared_ptr<glhf::ShaderProgram> _screenShader;
     std::shared_ptr<glhf::Texture> _checkersTexture;
