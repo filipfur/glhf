@@ -10,7 +10,7 @@ void glhf::Camera::createUBO() {
 }
 
 void glhf::Camera::update(float dt) {
-
+    (void)dt;
     const glm::vec3 eye =
         center + glm::vec3{glm::sin(yaw) * glm::cos(pitch) * distance, glm::sin(pitch) * distance,
                            glm::cos(yaw) * glm::cos(pitch) * distance};
