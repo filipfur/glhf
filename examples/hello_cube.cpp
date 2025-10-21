@@ -21,6 +21,8 @@ static constexpr glm::vec2 WINDOW_SIZE = {WINDOW_WIDTH, WINDOW_HEIGHT};
 
 struct Application : public glhf::IApplication {
     void init(int width, int height) override {
+        (void)width;
+        (void)height;
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_CULL_FACE);
@@ -46,7 +48,7 @@ struct Application : public glhf::IApplication {
         _camera.distance = 10.0f;
     }
 
-    void fps(float frames) override {}
+    void fps(float frames) override { (void)frames; }
 
     bool update(float dt) override {
         _camera.pitch = glm::pi<float>() * 0.125f;
@@ -67,6 +69,8 @@ struct Application : public glhf::IApplication {
     }
 
     void draw(int width, int height) override {
+        (void)width;
+        (void)height;
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         _objectShader->use();

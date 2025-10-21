@@ -20,6 +20,7 @@ struct glb_chunk {
 };
 
 void _parseJson(glhf::Gltf *gltf, const char *str, size_t len) {
+    (void)len;
     glhf::Json json;
     json.loadString(str);
 

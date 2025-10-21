@@ -16,7 +16,7 @@ struct IApplication {
     virtual void init(int width, int height) = 0;
     /// @brief called when there is new fps info
     /// @param frames number of frames per second
-    virtual void fps(float frames) {}
+    virtual void fps(float frames) { (void)frames; }
     /// @brief called when its time to update
     /// @param dt time since last update (delta)
     /// @return true if application was updated

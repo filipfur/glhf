@@ -45,7 +45,7 @@ struct Json {
         if (json.key.length() > 0) {
             os << "\"" << json.key << "\": ";
         }
-        if (json.value[0] >= '0' && json.value[0] <= '9' || json.value[0] == '-' ||
+        if ((json.value[0] >= '0' && json.value[0] <= '9') || json.value[0] == '-' ||
             json.value[0] == '{' || json.value[0] == '[') {
             os << json.value;
         } else {
