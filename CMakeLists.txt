@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.14)
+
+if(WIN32 AND DEFINED ENV{VCPKG_ROOT})
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+    message(STATUS "Using vcpkg toolchain: ${CMAKE_TOOLCHAIN_FILE}")
+endif()
+
 project(glhf LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -33,9 +39,6 @@ add_library(glhf
 )
 target_include_directories(glhf PUBLIC ${SDL2_INCLUDE_DIR} include)
 target_link_libraries(glhf PUBLIC glm stb ${SDL2_LIBRARIES} GLEW::GLEW OpenGL::GL)
-
-if (MSVC)
-endif()
 
 if(UNIX)
     target_compile_options(glhf PRIVATE -Wall -Wextra)
