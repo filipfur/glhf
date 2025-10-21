@@ -27,7 +27,8 @@ static constexpr glm::vec2 WINDOW_SIZE = {WINDOW_WIDTH, WINDOW_HEIGHT};
 
 struct Application : public glhf::IApplication {
     void init(int width, int height) override {
-
+        (void)width;
+        (void)height;
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_CULL_FACE);
@@ -79,7 +80,7 @@ struct Application : public glhf::IApplication {
         glhf::Skin::UBO->bindBufferBase();
     }
 
-    void fps(float frames) override {}
+    void fps(float frames) override { (void)frames; }
 
     bool update(float dt) override {
 
@@ -95,6 +96,8 @@ struct Application : public glhf::IApplication {
     }
 
     void draw(int width, int height) override {
+        (void)width;
+        (void)height;
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         _instShader->use();
@@ -152,7 +155,9 @@ struct Application : public glhf::IApplication {
     std::shared_ptr<glhf::InstanceFactory<glm::mat4>> _instanceFactory;
 };
 
-int main() {
+int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
     Application app;
     glhf::Window window{app};
     window.load("hello_dancer", WINDOW_WIDTH, WINDOW_HEIGHT, false);

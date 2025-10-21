@@ -104,7 +104,9 @@ struct Application : public glhf::IApplication {
     float _cubeVerticalSpeed{0.0f};
 };
 
-int main() {
+int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
     Application app;
     glhf::Window window{app};
     window.load("hello_cube", WINDOW_WIDTH, WINDOW_HEIGHT, false);

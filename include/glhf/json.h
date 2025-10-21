@@ -35,7 +35,8 @@ struct Json {
     operator unsigned int() const { return std::atoi(value.data()); }
     operator long() const { return std::atol(value.data()); }
     operator size_t() const { return operator long(); }
-    operator float() const { return std::atof(value.data()); }
+    operator float() const { return static_cast<float>(std::atof(value.data())); }
+    operator double() const { return std::atof(value.data()); }
     operator std::string_view() const { return value; }
 
     std::list<Json>::const_iterator begin() const { return children.begin(); }

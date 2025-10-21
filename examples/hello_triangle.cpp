@@ -228,7 +228,9 @@ struct Application : public glhf::IApplication {
     bool _antialiasing{true};
 };
 
-int main() {
+int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
     Application app;
     glhf::Window window{app};
     window.load("hello_triangle", WINDOW_WIDTH, WINDOW_HEIGHT, false);
