@@ -14,11 +14,6 @@
 #define LOG_LEVEL LOG_LEVEL_ERROR
 #endif
 
-// disable because __VA_OPT__ not working
-#if defined(_MSC_VER) && _MSC_VER < 1932
-#define LOG_LEVEL LOG_LEVEL_OFF
-#endif
-
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #if LOG_LEVEL > LOG_LEVEL_OFF
