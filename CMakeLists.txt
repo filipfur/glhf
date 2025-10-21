@@ -32,7 +32,7 @@ add_library(glhf
     src/window.cpp
 )
 target_include_directories(glhf PUBLIC ${SDL2_INCLUDE_DIR} include)
-target_link_libraries(glhf PUBLIC glm stb ${SDL2_LIBRARY} GLEW::GLEW OpenGL::GL)
+target_link_libraries(glhf PUBLIC glm stb ${SDL2_LIBRARIES} GLEW::GLEW OpenGL::GL)
 
 if (MSVC)
 endif()
