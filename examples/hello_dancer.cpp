@@ -11,6 +11,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <list>
+#include <memory>
 
 extern const uint8_t _embed_inst_vert[];
 extern const uint8_t _embed_anim_tbn_vert[];
