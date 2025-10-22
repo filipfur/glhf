@@ -36,12 +36,17 @@ jobs:
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
         exclude:
           - os: windows-latest
             c_compiler: gcc
           - os: windows-latest
             c_compiler: clang
           - os: ubuntu-latest
+            c_compiler: cl
+          - os: macos-latest
             c_compiler: cl
 
     steps:
@@ -64,6 +69,12 @@ jobs:
           libglew-dev \
           cmake \
           ninja-build
+
+    - name: Install dependencies (MacOS)
+      if: startsWith(matrix.os, 'macos')
+      run: |
+        brew update
+        brew install llvm glew sdl2
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
