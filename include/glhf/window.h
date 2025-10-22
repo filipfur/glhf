@@ -64,6 +64,8 @@ struct IApplication {
     };
 };
 
+void _mainLoop();
+
 struct Window {
     explicit Window(IApplication &iApplication);
     void load(const char *title, int width, int height, bool fullscreen);

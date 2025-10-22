@@ -41,7 +41,9 @@ static glm::vec3 rgbToHsv(const glm::vec3 &rgb) {
 }
 
 static glm::vec3 hsvToRgb(float h, float s, float v) {
-    float r, g, b;
+    float r{0.0f};
+    float g{0.0f};
+    float b{0.0f};
 
     int i = static_cast<int>(h / 60.0f) % 6;
     float f = (h / 60.0f) - i;
@@ -79,6 +81,8 @@ static glm::vec3 hsvToRgb(float h, float s, float v) {
         r = v;
         g = p;
         b = q;
+        break;
+    default:
         break;
     }
 
