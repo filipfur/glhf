@@ -3,10 +3,11 @@
 #include "glhf/json.h"
 #include <cassert>
 
+#define GLB_MAGIC 0x46546C67
+#define GLB_CHUNK_TYPE_JSON 0x4E4F534A
+#define GLB_CHUNK_TYPE_BIN 0x004E4942
+
 namespace {
-static constexpr size_t GLB_MAGIC = 0x46546C67;
-static constexpr size_t GLB_CHUNK_TYPE_JSON = 0x4E4F534A;
-static constexpr size_t GLB_CHUNK_TYPE_BIN = 0x004E4942;
 
 struct glb_header {
     uint32_t magic;
@@ -20,6 +21,7 @@ struct glb_chunk {
 };
 
 void _parseJson(glhf::Gltf *gltf, const char *str, size_t len) {
+    (void)len;
     glhf::Json json;
     json.loadString(str);
 

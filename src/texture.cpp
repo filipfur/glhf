@@ -41,7 +41,8 @@ glhf::Texture::Texture(const char *filepath, bool flip, uint32_t type) {
     int iw, ih, ic;
     stbi_set_flip_vertically_on_load(flip);
     const uint8_t *idata = stbi_load(filepath, &iw, &ih, &ic, 0);
-    auto tex = std::make_shared<glhf::Texture>(idata, iw, ih, static_cast<Channels>(ic), type);
+    create();
+    load(idata, iw, ih, static_cast<Channels>(ic), type);
     stbi_image_free((void *)idata);
 }
 

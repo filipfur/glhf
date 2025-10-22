@@ -8,8 +8,8 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
     gltf.loadGLB(glb);
     textures.reserve(gltf.textures.size());
     for (const auto &gltfTexture : gltf.textures) {
-        auto &texture = textures.emplace_back((uint8_t *)gltfTexture.image->bufferView->data(),
-                                              gltfTexture.image->bufferView->length, false);
+        textures.emplace_back((uint8_t *)gltfTexture.image->bufferView->data(),
+                              gltfTexture.image->bufferView->length, false);
         // TODO:
         // texture.setFilter(gltfTexture.sampler->magFilter, gltfTexture.sampler->minFilter);
     }
@@ -41,8 +41,6 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
         auto &mesh = meshes.emplace_back();
         mesh.name = gltfMesh.name;
         for (const auto &gltfPrimitive : gltfMesh.primitives) {
-            Primitive *primitive;
-
             std::vector<glm::vec3> tangents;
             if (options & TANGENTS) {
                 auto positions = gltfPrimitive.positions();
@@ -77,7 +75,7 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
             if (options & SKINNING && gltfPrimitive.attributes[glhf::Gltf::Primitive::JOINTS_0]) {
                 if (options & TANGENTS) {
                     mesh.primitives.push_back(
-                        std::move(glhf::PositionNormalUVTangentJointWeight.createPrimitive(
+                        glhf::PositionNormalUVTangentJointWeight.createPrimitive(
                             {
                                 gltfPrimitive.attributes[glhf::Gltf::Primitive::POSITION]->bytes(),
                                 gltfPrimitive.attributes[glhf::Gltf::Primitive::NORMAL]->bytes(),
@@ -88,42 +86,38 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
                                 gltfPrimitive.attributes[glhf::Gltf::Primitive::JOINTS_0]->bytes(),
                                 gltfPrimitive.attributes[glhf::Gltf::Primitive::WEIGHTS_0]->bytes(),
                             },
-                            gltfPrimitive.indices16())));
+                            gltfPrimitive.indices16()));
                 } else {
-                    mesh.primitives.push_back(
-                        std::move(glhf::PositionNormalUVJointWeight.createPrimitive(
-                            {
-                                gltfPrimitive.attributes[glhf::Gltf::Primitive::POSITION]->bytes(),
-                                gltfPrimitive.attributes[glhf::Gltf::Primitive::NORMAL]->bytes(),
-                                gltfPrimitive.attributes[glhf::Gltf::Primitive::TEXCOORD_0]
-                                    ->bytes(),
-                                gltfPrimitive.attributes[glhf::Gltf::Primitive::JOINTS_0]->bytes(),
-                                gltfPrimitive.attributes[glhf::Gltf::Primitive::WEIGHTS_0]->bytes(),
-                            },
-                            gltfPrimitive.indices16())));
+                    mesh.primitives.push_back(glhf::PositionNormalUVJointWeight.createPrimitive(
+                        {
+                            gltfPrimitive.attributes[glhf::Gltf::Primitive::POSITION]->bytes(),
+                            gltfPrimitive.attributes[glhf::Gltf::Primitive::NORMAL]->bytes(),
+                            gltfPrimitive.attributes[glhf::Gltf::Primitive::TEXCOORD_0]->bytes(),
+                            gltfPrimitive.attributes[glhf::Gltf::Primitive::JOINTS_0]->bytes(),
+                            gltfPrimitive.attributes[glhf::Gltf::Primitive::WEIGHTS_0]->bytes(),
+                        },
+                        gltfPrimitive.indices16()));
                 }
             } else {
                 if (options & TANGENTS) {
-                    mesh.primitives.push_back(
-                        std::move(glhf::PositionNormalUVTangent.createPrimitive(
-                            {
-                                gltfPrimitive.attributes[glhf::Gltf::Primitive::POSITION]->bytes(),
-                                gltfPrimitive.attributes[glhf::Gltf::Primitive::NORMAL]->bytes(),
-                                gltfPrimitive.attributes[glhf::Gltf::Primitive::TEXCOORD_0]
-                                    ->bytes(),
-                                std::span<uint8_t>((uint8_t *)tangents.data(),
-                                                   tangents.size() * sizeof(glm::vec3)),
-                            },
-                            gltfPrimitive.indices16())));
+                    mesh.primitives.push_back(glhf::PositionNormalUVTangent.createPrimitive(
+                        {
+                            gltfPrimitive.attributes[glhf::Gltf::Primitive::POSITION]->bytes(),
+                            gltfPrimitive.attributes[glhf::Gltf::Primitive::NORMAL]->bytes(),
+                            gltfPrimitive.attributes[glhf::Gltf::Primitive::TEXCOORD_0]->bytes(),
+                            std::span<uint8_t>((uint8_t *)tangents.data(),
+                                               tangents.size() * sizeof(glm::vec3)),
+                        },
+                        gltfPrimitive.indices16()));
 
                 } else {
-                    mesh.primitives.push_back(std::move(glhf::PositionNormalUV.createPrimitive(
+                    mesh.primitives.push_back(glhf::PositionNormalUV.createPrimitive(
                         {
                             gltfPrimitive.attributes[glhf::Gltf::Primitive::POSITION]->bytes(),
                             gltfPrimitive.attributes[glhf::Gltf::Primitive::NORMAL]->bytes(),
                             gltfPrimitive.attributes[glhf::Gltf::Primitive::TEXCOORD_0]->bytes(),
                         },
-                        gltfPrimitive.indices16())));
+                        gltfPrimitive.indices16()));
                 }
             }
             mesh.primitives.back().material = (gltfPrimitive.material == glhf::Gltf::nullindex)
@@ -196,9 +190,10 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
     scene.name = gltf.scene.name;
     for (glhf::Gltf::Index_t node : gltf.scene.nodes) {
         scene.nodes.push_back(&nodes[node]);
-        scene.nodes.back()->recursive([](glhf::Node *node, int depth) {
-            LOG_TRACE("%*s%.*s%s%s", depth * 2, "", (int)node->name.size(), node->name.data(),
-                      node->mesh ? " (mesh)" : "", node->skin ? " (skin)" : "");
-        });
+        scene.nodes.back()->recursive(
+            []([[maybe_unused]] glhf::Node *node, [[maybe_unused]] int depth) {
+                LOG_TRACE("%*s%.*s%s%s", depth * 2, "", (int)node->name.size(), node->name.data(),
+                          node->mesh ? " (mesh)" : "", node->skin ? " (skin)" : "");
+            });
     }
 }

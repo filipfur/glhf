@@ -124,18 +124,18 @@ struct Application : public glhf::IApplication {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_CULL_FACE);
 
-        primitives.push_back(std::move(glhf::PositionNormalUV.createPrimitive(
+        primitives.push_back(glhf::PositionNormalUV.createPrimitive(
             {
                 std::span<uint8_t>((uint8_t *)triangle_positions, sizeof(triangle_positions)),
                 std::span<uint8_t>((uint8_t *)triangle_normals, sizeof(triangle_normals)),
                 std::span<uint8_t>((uint8_t *)triangle_uvs, sizeof(triangle_uvs)),
             },
-            sizeof(triangle_positions) / sizeof(glm::vec3))));
+            sizeof(triangle_positions) / sizeof(glm::vec3)));
 
-        primitives.push_back(std::move(glhf::XYUV.createPrimitive(
+        primitives.push_back(glhf::XYUV.createPrimitive(
             {std::span<uint8_t>((uint8_t *)screen_vertices, sizeof(screen_vertices))},
             std::span<uint16_t>((uint16_t *)screen_indices,
-                                sizeof(screen_indices) / sizeof(uint16_t)))));
+                                sizeof(screen_indices) / sizeof(uint16_t))));
 
         auto *cameraUBO = glhf::UniformBuffer::create(&_cameraBlock, sizeof(CameraBlock));
         auto *materialUBO = glhf::UniformBuffer::create(&_materialBlock, sizeof(glm::vec4));
@@ -162,8 +162,11 @@ struct Application : public glhf::IApplication {
         _fbo->createRenderBufferDS(width * 2, height * 2);
         _fbo->unbind();
     }
-    void fps(float frames) override {}
-    bool update(float dt) override { return true; }
+    void fps(float frames) override { (void)frames; }
+    bool update(float dt) override {
+        (void)dt;
+        return true;
+    }
     void draw(int width, int height) override {
         const size_t PRIMITIVE_TRIANGLE = 0;
         const size_t PRIMITIVE_SCREEN = 1;
@@ -212,8 +215,12 @@ struct Application : public glhf::IApplication {
         .u_view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                               glm::vec3(0.0f, 1.0f, 0.0f)),
         .u_eye = glm::vec3{0.0f, 0.0f, 1.0f},
+        .padding = 0.0f,
     };
-    MaterialBlock _materialBlock{.u_color = {1.0f, 0.0f, 1.0f}};
+    MaterialBlock _materialBlock{
+        .u_color = {1.0f, 0.0f, 1.0f},
+        .padding = 0.0f,
+    };
     std::shared_ptr<glhf::ShaderProgram> _triShader;
     std::shared_ptr<glhf::ShaderProgram> _screenShader;
     std::shared_ptr<glhf::Texture> _checkersTexture;
@@ -221,7 +228,9 @@ struct Application : public glhf::IApplication {
     bool _antialiasing{true};
 };
 
-int main() {
+int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
     Application app;
     glhf::Window window{app};
     window.load("hello_triangle", WINDOW_WIDTH, WINDOW_HEIGHT, false);

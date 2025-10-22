@@ -1,17 +1,18 @@
 #include "embed.h"
 #include <cstdio>
+#include <cstring>
 #include <filesystem>
 #include <string>
 #include <string_view>
 
 namespace {
 inline static constexpr size_t strlen(const char *path) {
-    for (size_t i{0}; i < __UINT64_MAX__; ++i) {
+    for (size_t i{0}; i < UINT64_MAX; ++i) {
         if (path[i] == '\0') {
             return i;
         }
     }
-    return __UINT64_MAX__;
+    return UINT64_MAX;
 }
 
 inline static constexpr const char *filename(const char *path) {

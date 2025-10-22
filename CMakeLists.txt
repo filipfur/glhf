@@ -1,21 +1,21 @@
 cmake_minimum_required(VERSION 3.14)
+
+if(WIN32 AND DEFINED ENV{VCPKG_ROOT})
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+    message(STATUS "Using vcpkg toolchain: ${CMAKE_TOOLCHAIN_FILE}")
+endif()
+
 project(glhf LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-if ( CMAKE_COMPILER_IS_GNUCC )
-    target_compile_options(main PRIVATE -Wall -Wextra)
-endif()
-if ( MSVC )
-    target_compile_options(main PRIVATE /W4)
-endif()
 
 add_subdirectory(third_party)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(SDL2 REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(OpenGL REQUIRED)
 
 add_library(glhf
     src/animation.cpp
@@ -38,7 +38,15 @@ add_library(glhf
     src/window.cpp
 )
 target_include_directories(glhf PUBLIC ${SDL2_INCLUDE_DIR} include)
-target_link_libraries(glhf PUBLIC glm stb ${SDL2_LIBRARY} GLEW::GLEW)
+target_link_libraries(glhf PUBLIC glm stb ${SDL2_LIBRARIES} GLEW::GLEW OpenGL::GL)
+
+if(UNIX)
+    target_compile_options(glhf PRIVATE -Wall -Wextra)
+elseif(MSVC)
+    target_compile_options(glhf PRIVATE /Zc:preprocessor /W2)
+else()
+    message(FATAL_ERROR "Unknown target")
+endif()
 
 add_subdirectory(tools/embed)
 add_subdirectory(assets)

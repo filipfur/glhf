@@ -1,6 +1,7 @@
 #include "glhf/json.h"
 
 #include <cassert>
+#include <cstdint>
 
 // TODO: Might be better to store "text" instead of text in json.value for strings.
 

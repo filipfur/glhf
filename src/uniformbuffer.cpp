@@ -7,7 +7,7 @@
 static std::list<glhf::UniformBuffer> _uniformBuffers;
 
 glhf::UniformBuffer *glhf::UniformBuffer::create(void *data, uint32_t byteLength) {
-    auto &ubo = _uniformBuffers.emplace_back(_uniformBuffers.size());
+    auto &ubo = _uniformBuffers.emplace_back(static_cast<uint32_t>(_uniformBuffers.size()));
     ubo.bind();
     ubo.bufferData(data, byteLength);
     ubo.unbind();
