@@ -12,7 +12,7 @@ add_executable(glhf_test
     src/test_gltf.cpp
 )
 target_include_directories(glhf_test PRIVATE include)
-target_link_libraries(glhf_test GTest::gtest_main glhf glhf_assets)
+target_link_libraries(glhf_test GTest::gtest_main glhf glhf_objects)
 
 
 include(GoogleTest)
