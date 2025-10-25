@@ -1,6 +1,9 @@
 add_executable(hello_triangle hello_triangle.cpp)
 target_link_libraries(hello_triangle PRIVATE glhf)
 
+add_executable(hello_image hello_image.cpp)
+target_link_libraries(hello_image PRIVATE glhf glhf_assets)
+
 add_executable(hello_cube hello_cube.cpp)
 target_link_libraries(hello_cube PRIVATE glhf glhf_assets)
 

@@ -49,7 +49,7 @@ void _parseJson(glhf::Gltf *gltf, const char *str, size_t len) {
     gltf->textures.reserve(gltfTextures.size());
     gltf->materials.reserve(gltfMaterials.size());
     gltf->buffers.reserve(gltfBuffers.size());
-    gltf->bufferViews.reserve(gltfBufferViews.size());
+    gltf->bufferViews.resize(gltfBufferViews.size());
     gltf->accessors.reserve(gltfAccessors.size());
     gltf->meshes.reserve(gltfMeshes.size());
     gltf->nodes.reserve(gltfNodes.size());
@@ -71,7 +71,8 @@ void _parseJson(glhf::Gltf *gltf, const char *str, size_t len) {
     for (const auto &gltfTexture : gltfTextures) {
         auto &texture = gltf->textures.emplace_back();
         texture.image = &gltf->images[gltfTexture["source"]];
-        texture.sampler = &gltf->textureSamplers[gltfTexture["sampler"]];
+        int sampler  = gltfTexture["sampler"];
+        texture.sampler = sampler < gltf->textureSamplers.size() ? &gltf->textureSamplers[sampler] : nullptr;
     }
 
     for (const auto &gltfMaterial : gltfMaterials) {
@@ -103,12 +104,14 @@ void _parseJson(glhf::Gltf *gltf, const char *str, size_t len) {
         buffer.length = gltfBuffer["byteLength"];
     }
 
+    auto bufferViewIt = gltf->bufferViews.begin();
     for (const auto &gltfBufferView : gltfBufferViews) {
-        auto &bufferView = gltf->bufferViews.emplace_back();
+        auto &bufferView = *bufferViewIt;
         bufferView.buffer = &gltf->buffers[gltfBufferView["buffer"]];
         bufferView.length = gltfBufferView.get<uint32_t>("byteLength");
         bufferView.offset = gltfBufferView.get<uint32_t>("byteOffset");
         bufferView.target = gltfBufferView.get<uint16_t>("target");
+        ++bufferViewIt;
     }
 
     for (const auto &gltfAccessor : gltfAccessors) {

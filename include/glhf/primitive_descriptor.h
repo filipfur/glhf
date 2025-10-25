@@ -18,7 +18,7 @@ template <std::size_t N> struct PrimitiveDescriptor {
     Primitive createPrimitive(const std::array<std::span<uint8_t>, N> &data, size_t count) const {
         Primitive primitive;
         _createVertexArray(data, primitive);
-        primitive.count = count;
+        primitive.count = static_cast<uint32_t>(count);
         glBindVertexArray(0);
         return primitive;
     }
@@ -31,7 +31,7 @@ template <std::size_t N> struct PrimitiveDescriptor {
         glGenBuffers(1, &primitive.elementBuffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, primitive.elementBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(), usage);
-        primitive.count = indices.size();
+        primitive.count = static_cast<uint32_t>(indices.size());
         glBindVertexArray(0);
         return primitive;
     }
@@ -45,7 +45,7 @@ template <std::size_t N> struct PrimitiveDescriptor {
         glBindVertexArray(primitive.vertexArray);
         primitive.buffers.resize(N);
         glGenBuffers(N, primitive.buffers.data());
-        for (size_t i{0}; i < N; ++i) {
+        for (uint32_t i{0}; i < N; ++i) {
             glBindBuffer(GL_ARRAY_BUFFER, primitive.buffers.at(i));
             glBufferData(GL_ARRAY_BUFFER, data.at(i).size(), data.at(i).data(), usage);
             glVertexAttribPointer(i, attributes.at(i).size, attributes.at(i).type, GL_FALSE,

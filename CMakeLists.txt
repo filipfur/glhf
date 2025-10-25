@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 
 if(WIN32 AND DEFINED ENV{VCPKG_ROOT})
     set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+    set(VCPKG_LIBRARY_LINKAGE static)
+    set(VCPKG_TARGET_TRIPLET x64-windows-static)
     message(STATUS "Using vcpkg toolchain: ${CMAKE_TOOLCHAIN_FILE}")
 endif()
 
@@ -12,10 +14,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(third_party)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(SDL2 REQUIRED)
-find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
 
 add_library(glhf
     src/animation.cpp
@@ -38,7 +39,7 @@ add_library(glhf
     src/window.cpp
 )
 target_include_directories(glhf PUBLIC ${SDL2_INCLUDE_DIR} include)
-target_link_libraries(glhf PUBLIC glm stb ${SDL2_LIBRARIES} GLEW::GLEW OpenGL::GL)
+target_link_libraries(glhf PUBLIC glm stb SDL2::SDL2-static SDL2::SDL2main GLEW::GLEW OpenGL::GL)
 
 if(UNIX)
     target_compile_options(glhf PRIVATE -Wall -Wextra)
