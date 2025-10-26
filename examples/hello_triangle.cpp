@@ -41,7 +41,7 @@ const uint16_t screen_indices[] = {
     0, 1, 2, 1, 3, 2,
 };
 
-const char *triVertSrc = R"(#version 330 core
+const char *triVertSrc = GLHF_GLSL_VERSION R"(
 layout(location=0) in vec3 aPos;
 layout(location=1) in vec3 aNor;
 layout(location=2) in vec2 aUV;
@@ -62,7 +62,7 @@ void main() {
 }
 )";
 
-const char *triFragSrc = R"(#version 330 core
+const char *triFragSrc = GLHF_GLSL_VERSION R"(
 precision mediump float;
 in vec2 UV;
 
@@ -80,7 +80,7 @@ void main() {
 }
 )";
 
-const char *screenVertSrc = R"(#version 330 core
+const char *screenVertSrc = GLHF_GLSL_VERSION R"(
 layout(location=0) in vec4 aXYUV;
 out vec2 UV;
 
@@ -90,7 +90,7 @@ void main() {
 }
 )";
 
-const char *screenFragSrc = R"(#version 330 core
+const char *screenFragSrc = GLHF_GLSL_VERSION R"(
 precision mediump float;
 in vec2 UV;
 uniform sampler2D u_texture;
@@ -154,7 +154,7 @@ struct Application : public glhf::IApplication {
         _fbo.reset(new glhf::Framebuffer());
         _fbo->bind();
         _fbo->createTexture(GL_COLOR_ATTACHMENT0, width * 2, height * 2, glhf::Texture::RGB,
-                            GL_FLOAT);
+                            GL_UNSIGNED_BYTE);
         _fbo->textures.at(GL_COLOR_ATTACHMENT0)->bind();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

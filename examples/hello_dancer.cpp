@@ -44,7 +44,7 @@ struct Application : public glhf::IApplication {
         _collections.emplace_back((const char *)_embed_cube_glb, glhf::Collection::NO_OPTIONS);
         setActiveCollection(_collections.begin());
 
-        glm::mat4 instances[101 * 101];
+        static glm::mat4 instances[101 * 101];
         size_t i{0};
         for (int y{-50}; y <= 50; ++y) {
             for (int x{-50}; x <= 50; ++x) {

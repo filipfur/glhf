@@ -71,8 +71,9 @@ void _parseJson(glhf::Gltf *gltf, const char *str, size_t len) {
     for (const auto &gltfTexture : gltfTextures) {
         auto &texture = gltf->textures.emplace_back();
         texture.image = &gltf->images[gltfTexture["source"]];
-        int sampler  = gltfTexture["sampler"];
-        texture.sampler = sampler < gltf->textureSamplers.size() ? &gltf->textureSamplers[sampler] : nullptr;
+        size_t sampler = gltfTexture["sampler"];
+        texture.sampler =
+            sampler < gltf->textureSamplers.size() ? &gltf->textureSamplers[sampler] : nullptr;
     }
 
     for (const auto &gltfMaterial : gltfMaterials) {

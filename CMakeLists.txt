@@ -9,13 +9,22 @@ endif()
 
 project(glhf LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(IS_TOP_LEVEL_PROJECT TRUE)
+else()
+    set(IS_TOP_LEVEL_PROJECT FALSE)
+endif()
+
+option(BUILD_TESTS "Build tests" ${IS_TOP_LEVEL_PROJECT})
 
 add_subdirectory(third_party)
 
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
+if(EMSCRIPTEN)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s FULL_ES3=1 -s USE_WEBGL2=1 -s MIN_WEBGL_VERSION=2 -s USE_SDL=2 -s ALLOW_MEMORY_GROWTH=1 --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/web/shell_minimal.html")
+else()
+    find_package(GLEW REQUIRED)
+endif()
 find_package(SDL2 CONFIG REQUIRED)
 
 add_library(glhf
@@ -38,8 +47,13 @@ add_library(glhf
     src/uniformbuffer.cpp
     src/window.cpp
 )
+target_compile_features(glhf PUBLIC cxx_std_20)
 target_include_directories(glhf PUBLIC ${SDL2_INCLUDE_DIR} include)
-target_link_libraries(glhf PUBLIC glm stb SDL2::SDL2-static SDL2::SDL2main GLEW::GLEW OpenGL::GL)
+if(EMSCRIPTEN)
+    target_link_libraries(glhf PUBLIC glm stb SDL2::SDL2 OpenGL::GL)
+else()
+    target_link_libraries(glhf PUBLIC glm stb SDL2::SDL2-static SDL2::SDL2main GLEW::GLEW OpenGL::GL)
+endif()
 
 if(UNIX)
     target_compile_options(glhf PRIVATE -Wall -Wextra)
@@ -49,10 +63,13 @@ else()
     message(FATAL_ERROR "Unknown target")
 endif()
 
-add_subdirectory(tools/embed)
+add_subdirectory(tools)
 add_subdirectory(assets)
 
 add_compile_definitions(LOG_LEVEL=3)
 add_subdirectory(examples)
-enable_testing()
-add_subdirectory(tests)
+
+if(NOT EMSCRIPTEN AND BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
