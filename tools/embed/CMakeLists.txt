@@ -18,18 +18,18 @@ macro(embed_assets embed_target)
         get_filename_component(file_cpp ${asset} NAME_WE)
         get_filename_component(file_ext ${asset} EXT)
         string(REPLACE "." "" file_ext "${file_ext}")
-        set(file_cpp "${CMAKE_CURRENT_BINARY_DIR}/embed_${file_cpp}_${file_ext}.cpp")
+        set(file_cpp "${CMAKE_CURRENT_BINARY_DIR}/${embed_target}_${file_cpp}_${file_ext}.cpp")
         if(EMSCRIPTEN)
             add_custom_command(
                 OUTPUT ${file_cpp}
-                COMMAND ${EMBED_EXE} ${asset} ${EMBED_FLAGS} -o ${file_cpp}
+                COMMAND ${EMBED_EXE} ${asset} -p ${embed_target} ${EMBED_FLAGS} -o ${file_cpp}
                 DEPENDS ${EMBED_EXE} ${asset}
                 COMMENT "GENERATING ${file_cpp}"
                 VERBATIM)
         else()
             add_custom_command(
                 OUTPUT ${file_cpp}
-                COMMAND embed ${asset} ${EMBED_FLAGS} -o ${file_cpp}
+                COMMAND embed ${asset} -p ${embed_target} ${EMBED_FLAGS} -o ${file_cpp}
                 DEPENDS embed ${asset}
                 COMMENT "GENERATING ${file_cpp}"
                 VERBATIM)

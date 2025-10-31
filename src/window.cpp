@@ -1,7 +1,5 @@
 #include "glhf/window.h"
 
-#include "glhf/opengl.h"
-#include "glhf/time.h"
 #include <cassert>
 
 #ifdef _WIN32
@@ -40,7 +38,7 @@ void glhf::_mainLoop() {
             updated = true;
         }
         deltaTicks -= PERIOD_TIME_MS;
-        glhf::time::increment(glhf::time::fromMilliseconds(PERIOD_TIME_MS));
+        glhf::Time::increment(glhf::Time::fromMilliseconds(PERIOD_TIME_MS));
     }
     if (updated) {
         _activeWindow->_iApplication.draw(_activeWindow->_drawableWidth,

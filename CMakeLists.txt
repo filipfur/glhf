@@ -15,7 +15,11 @@ else()
     set(IS_TOP_LEVEL_PROJECT FALSE)
 endif()
 
-option(BUILD_TESTS "Build tests" ${IS_TOP_LEVEL_PROJECT})
+option(BUILD_TOOLS "BUILD_TOOLS" ON)
+option(BUILD_ASSETS "BUILD_ASSETS" ${IS_TOP_LEVEL_PROJECT})
+option(BUILD_EXAMPLES "BUILD_EXAMPLES" ${IS_TOP_LEVEL_PROJECT})
+option(BUILD_TESTS "BUILD_TESTS" ${IS_TOP_LEVEL_PROJECT})
+option(BUILD_LOG_LEVEL "BUILD_LOG_LEVEL" 3)
 
 add_subdirectory(third_party)
 
@@ -63,11 +67,19 @@ else()
     message(FATAL_ERROR "Unknown target")
 endif()
 
-add_subdirectory(tools)
-add_subdirectory(assets)
+if(BUILD_TOOLS)
+    add_subdirectory(tools)
+endif()
 
-add_compile_definitions(LOG_LEVEL=3)
-add_subdirectory(examples)
+if(BUILD_ASSETS)
+    add_subdirectory(assets)
+endif()
+
+target_compile_definitions(glhf PUBLIC LOG_LEVEL=${BUILD_LOG_LEVEL})
+
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
 if(NOT EMSCRIPTEN AND BUILD_TESTS)
     enable_testing()

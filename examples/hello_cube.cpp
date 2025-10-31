@@ -11,10 +11,10 @@
 #include <list>
 #include <memory>
 
-extern const uint8_t _embed_object_vert[];
-extern const uint8_t _embed_object_frag[];
+extern const uint8_t _glhf_shaders_object_vert[];
+extern const uint8_t _glhf_shaders_object_frag[];
 
-extern const uint8_t _embed_cube_glb[];
+extern const uint8_t _glhf_objects_cube_glb[];
 
 static constexpr unsigned int WINDOW_WIDTH = 720u;
 static constexpr unsigned int WINDOW_HEIGHT = 480u;
@@ -32,7 +32,8 @@ struct Application : public glhf::IApplication {
 
         glhf::Camera::createUBO();
 
-        _collections.emplace_back((const char *)_embed_cube_glb, glhf::Collection::NO_OPTIONS);
+        _collections.emplace_back((const char *)_glhf_objects_cube_glb,
+                                  glhf::Collection::NO_OPTIONS);
 
         _cubeNode = _collections.back().scene.nodes.front();
         _cubeNode->mesh->primitives.front().material->color = rgb(112, 54, 144);
@@ -40,8 +41,8 @@ struct Application : public glhf::IApplication {
         _objectShader.reset(new glhf::ShaderProgram(
             {{"u_model", glm::mat4(1.0f)}, {"u_texture", 0}, {"u_color", glm::vec4(1.0f)}},
             {{"CameraBlock", *glhf::Camera::UBO}},
-            {GL_VERTEX_SHADER, (const char *)_embed_object_vert},
-            {GL_FRAGMENT_SHADER, (const char *)_embed_object_frag}));
+            {GL_VERTEX_SHADER, (const char *)_glhf_shaders_object_vert},
+            {GL_FRAGMENT_SHADER, (const char *)_glhf_shaders_object_frag}));
 
         glhf::Camera::UBO->bindBufferBase();
 
@@ -54,7 +55,7 @@ struct Application : public glhf::IApplication {
     bool update(float dt) override {
         _camera.pitch = glm::pi<float>() * 0.125f;
         _camera.yaw += dt * glm::pi<float>() * 0.125f;
-        _camera.update(dt);
+        _camera.update();
 
         float y1 = _cubeNode->t().y + _cubeVerticalSpeed * dt;
         if (y1 < 0) {

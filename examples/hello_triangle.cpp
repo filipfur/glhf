@@ -181,7 +181,7 @@ struct Application : public glhf::IApplication {
         _checkersTexture->bind();
         _triShader->use();
         _triShader->uniforms.at("u_model")
-            << glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(0.33f)), glhf::time::seconds(),
+            << glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(0.33f)), glhf::Time::seconds(),
                            glm::vec3{0.0f, 0.0f, 1.0f});
         primitives.at(PRIMITIVE_TRIANGLE).render();
         if (_antialiasing) {

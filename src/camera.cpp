@@ -1,16 +1,20 @@
 #include "glhf/camera.h"
 
+#include "glhf/log.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 glhf::UniformBuffer *glhf::Camera::UBO{nullptr};
 
 void glhf::Camera::createUBO() {
-    Block block;
-    UBO = glhf::UniformBuffer::create(&block, sizeof(Block));
+    if (glhf::Camera::UBO) {
+        LOG_WARN("glhf::Camera::UBO is already created.");
+    } else {
+        Block block;
+        UBO = glhf::UniformBuffer::create(&block, sizeof(Block));
+    }
 }
 
-void glhf::Camera::update(float dt) {
-    (void)dt;
+void glhf::Camera::update() {
     const glm::vec3 eye =
         center + glm::vec3{glm::sin(yaw) * glm::cos(pitch) * distance, glm::sin(pitch) * distance,
                            glm::cos(yaw) * glm::cos(pitch) * distance};

@@ -12,7 +12,31 @@ struct Node : public TRS {
     Mesh *mesh;
     Skin *skin;
     void render(glhf::ShaderProgram *shaderProgram);
-    void recursive(const std::function<void(glhf::Node *, int)> &func, int depth = 0);
-    Node *find(const std::function<bool(const glhf::Node &)> &func);
+
+    Node clone() const {
+        Node node;
+        node.name = name;
+        node.mesh = mesh;
+        node.skin = skin;
+        return node;
+    }
+
+    template <typename RecurPred> void recursive(RecurPred p, int depth = 0) {
+        p(this, depth);
+        for (glhf::Node *child : children) {
+            child->recursive(p, depth + 1);
+        }
+    }
+
+    template <typename UnaryPred> Node *find(UnaryPred p) {
+        if (p(*this)) {
+            return this;
+        }
+        glhf::Node *node = nullptr;
+        for (glhf::Node *child : children) {
+            node = node ? node : child->find(p);
+        }
+        return node;
+    }
 };
 } // namespace glhf

@@ -29,7 +29,7 @@ void glhf::Framebuffer::createRenderBufferDS(uint32_t width, uint32_t height) {
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 }
-void glhf::Framebuffer::checkStatus(const char *label) {
+void glhf::Framebuffer::checkStatus([[maybe_unused]] const char *label) {
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         LOG_ERROR("Framebuffer '%s' is not complete: %d", label, id);
     }

@@ -11,15 +11,14 @@
 #include <list>
 #include <memory>
 
-extern const uint8_t _embed_screen_vert[];
-extern const uint8_t _embed_texture_frag[];
+extern const uint8_t _glhf_shaders_screen_vert[];
+extern const uint8_t _glhf_shaders_texture_frag[];
 
-extern const uint8_t _embed_sheep_png[];
-extern const size_t _embed_sheep_png_length;
+extern const uint8_t _glhf_images_sheep_png[];
+extern const size_t _glhf_images_sheep_png_length;
 
 static constexpr unsigned int WINDOW_WIDTH = 480u;
 static constexpr unsigned int WINDOW_HEIGHT = 480u;
-static constexpr glm::vec2 WINDOW_SIZE = {WINDOW_WIDTH, WINDOW_HEIGHT};
 
 struct Application : public glhf::IApplication {
     void init(int width, int height) override {
@@ -32,13 +31,16 @@ struct Application : public glhf::IApplication {
         glDepthFunc(GL_LESS);
 
         _shaderProgram.reset(new glhf::ShaderProgram(
-            {{"u_texture", 0}}, {}, {GL_VERTEX_SHADER, (const char *)_embed_screen_vert},
-            {GL_FRAGMENT_SHADER, (const char *)_embed_texture_frag}));
+            {{"u_texture", 0}}, {}, {GL_VERTEX_SHADER, (const char *)_glhf_shaders_screen_vert},
+            {GL_FRAGMENT_SHADER, (const char *)_glhf_shaders_texture_frag}));
     }
 
     void fps(float frames) override { (void)frames; }
 
-    bool update(float dt) override { return true; }
+    bool update(float dt) override {
+        (void)dt;
+        return true;
+    }
 
     void draw(int width, int height) override {
         (void)width;
@@ -59,7 +61,8 @@ struct Application : public glhf::IApplication {
         static glhf::Primitive screen_primitive = glhf::XYUV.createPrimitive(
             {std::span<uint8_t>((uint8_t *)screen_vertices, sizeof(screen_vertices))},
             std::span<uint16_t>(screen_indices));
-        static glhf::Texture texture{_embed_sheep_png, (uint32_t)_embed_sheep_png_length, true};
+        static glhf::Texture texture{_glhf_images_sheep_png,
+                                     (uint32_t)_glhf_images_sheep_png_length, true};
         glActiveTexture(GL_TEXTURE0);
         texture.bind();
         screen_primitive.render();
