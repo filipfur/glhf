@@ -82,6 +82,48 @@ struct TRS {
 
     const glm::vec3 &s() { return scale.data(); }
 
+    TRS &setTranslation(const glm::vec3 &t) {
+        translation = t;
+        return *this;
+    }
+    TRS &setTranslation(float x, float y, float z) { return setTranslation({x, y, z}); }
+    TRS &setRotation(const glm::quat &q) {
+        rotation = q;
+        return *this;
+    }
+    TRS &setEuler(const glm::vec3 &r) {
+        euler = r;
+        return *this;
+    }
+    TRS &setEuler(float x, float y, float z) { return setEuler({x, y, z}); }
+    TRS &setScale(const glm::vec3 &s) {
+        scale = s;
+        return *this;
+    }
+    TRS &setScale(float x, float y, float z) { return setScale({x, y, z}); }
+    TRS &setScale(float s) { return setScale(glm::vec3{s}); }
+
+    TRS &applyTranslation(const glm::vec3 &t) {
+        translation += t;
+        return *this;
+    }
+    TRS &applyTranslation(float x, float y, float z) { return applyTranslation({x, y, z}); }
+    TRS &applyRotation(const glm::quat &q) {
+        rotation += q;
+        return *this;
+    }
+    TRS &applyEuler(const glm::vec3 &r) {
+        euler += r;
+        return *this;
+    }
+    TRS &applyEuler(float x, float y, float z) { return applyEuler({x, y, z}); }
+    TRS &applyScale(const glm::vec3 &s) {
+        scale += s;
+        return *this;
+    }
+    TRS &applyScale(float x, float y, float z) { return applyScale({x, y, z}); }
+    TRS &applyScale(float s) { return applyScale(glm::vec3{s}); }
+
     void invalidate() { _validity = INVALID; }
     bool isValid() const { return _validity == VALID; }
 

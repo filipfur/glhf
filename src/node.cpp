@@ -25,21 +25,3 @@ void glhf::Node::render(glhf::ShaderProgram *shaderProgram) {
         }
     }
 }
-
-void glhf::Node::recursive(const std::function<void(glhf::Node *, int)> &func, int depth) {
-    func(this, depth);
-    for (glhf::Node *child : children) {
-        child->recursive(func, depth + 1);
-    }
-}
-
-glhf::Node *glhf::Node::find(const std::function<bool(const glhf::Node &)> &func) {
-    if (func(*this)) {
-        return this;
-    }
-    glhf::Node *node = nullptr;
-    for (glhf::Node *child : children) {
-        node = node ? node : child->find(func);
-    }
-    return node;
-}

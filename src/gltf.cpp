@@ -40,8 +40,6 @@ void _parseJson(glhf::Gltf *gltf, const char *str, size_t len) {
     const auto &gltfMeshes = json["meshes"];
     const auto &gltfScene = json["scenes"][json["scene"]];
 
-    std::cout << "loading scene: " << gltfScene["name"].value << "\n";
-
     gltf->scene.name.assign(gltfScene["name"].value);
 
     gltf->images.reserve(gltfImages.size());

@@ -13,13 +13,13 @@
 #include <list>
 #include <memory>
 
-extern const uint8_t _embed_inst_vert[];
-extern const uint8_t _embed_anim_tbn_vert[];
-extern const uint8_t _embed_object_frag[];
-extern const uint8_t _embed_object_normal_frag[];
+extern const uint8_t _glhf_shaders_inst_vert[];
+extern const uint8_t _glhf_shaders_anim_tbn_vert[];
+extern const uint8_t _glhf_shaders_object_frag[];
+extern const uint8_t _glhf_shaders_object_normal_frag[];
 
-extern const uint8_t _embed_cube_glb[];
-extern const uint8_t _embed_joyful_vampire_glb[];
+extern const uint8_t _glhf_objects_cube_glb[];
+extern const uint8_t _glhf_objects_joyful_vampire_glb[];
 
 static constexpr unsigned int WINDOW_WIDTH = 720u;
 static constexpr unsigned int WINDOW_HEIGHT = 480u;
@@ -40,8 +40,9 @@ struct Application : public glhf::IApplication {
 
         glhf::Collection::Options opts = static_cast<glhf::Collection::Options>(
             glhf::Collection::SKINNING | glhf::Collection::TANGENTS);
-        _collections.emplace_back((const char *)_embed_joyful_vampire_glb, opts);
-        _collections.emplace_back((const char *)_embed_cube_glb, glhf::Collection::NO_OPTIONS);
+        _collections.emplace_back((const char *)_glhf_objects_joyful_vampire_glb, opts);
+        _collections.emplace_back((const char *)_glhf_objects_cube_glb,
+                                  glhf::Collection::NO_OPTIONS);
         setActiveCollection(_collections.begin());
 
         static glm::mat4 instances[101 * 101];
@@ -65,16 +66,16 @@ struct Application : public glhf::IApplication {
         _instShader.reset(new glhf::ShaderProgram(
             {{"u_model", glm::mat4(1.0f)}, {"u_texture", 0}, {"u_color", glm::vec4(1.0f)}},
             {{"CameraBlock", *glhf::Camera::UBO}},
-            {GL_VERTEX_SHADER, (const char *)_embed_inst_vert},
-            {GL_FRAGMENT_SHADER, (const char *)_embed_object_frag}));
+            {GL_VERTEX_SHADER, (const char *)_glhf_shaders_inst_vert},
+            {GL_FRAGMENT_SHADER, (const char *)_glhf_shaders_object_frag}));
         _animShader.reset(new glhf::ShaderProgram(
             {{"u_model", glm::mat4(1.0f)},
              {"u_texture", 0},
              {"u_normal", 1},
              {"u_color", glm::vec4(1.0f)}},
             {{"CameraBlock", *glhf::Camera::UBO}, {"SkinBlock", *glhf::Skin::UBO}},
-            {GL_VERTEX_SHADER, (const char *)_embed_anim_tbn_vert},
-            {GL_FRAGMENT_SHADER, (const char *)_embed_object_normal_frag}));
+            {GL_VERTEX_SHADER, (const char *)_glhf_shaders_anim_tbn_vert},
+            {GL_FRAGMENT_SHADER, (const char *)_glhf_shaders_object_normal_frag}));
 
         glhf::Camera::UBO->bindBufferBase();
         glhf::Skin::UBO->bindBufferBase();
@@ -86,7 +87,7 @@ struct Application : public glhf::IApplication {
 
         _camera.pitch = glm::pi<float>() * 0.125f;
         _camera.yaw += dt * glm::pi<float>() * 0.125f;
-        _camera.update(dt);
+        _camera.update();
 
         if (!_activeCollection->animations.empty()) {
             _activeCollection->animations.front().update(dt);

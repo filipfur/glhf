@@ -3,13 +3,13 @@
 #include "glhf/gltf.h"
 #include "glhf/json.h"
 
-extern const unsigned char _embed_cube_glb[];
+extern const unsigned char _glhf_objects_cube_glb[];
 
 TEST(GltfTest, TestCube) {
     glhf::Json json;
 
     glhf::Gltf gltf;
-    gltf.loadGLB((const char *)_embed_cube_glb);
+    gltf.loadGLB((const char *)_glhf_objects_cube_glb);
 
     const auto &node = gltf.nodes.at(gltf.scene.nodes.at(0));
     const auto &mesh = gltf.meshes.at(node.mesh);

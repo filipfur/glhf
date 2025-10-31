@@ -7,6 +7,10 @@
 #include <SDL.h>
 #endif
 
+// Let them spread.
+#include "glhf/opengl.h"
+#include "glhf/time.h"
+
 namespace glhf {
 
 struct IApplication {
