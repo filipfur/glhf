@@ -5,6 +5,7 @@
 #include "glhf/node.h"
 #include "glhf/predicate.h"
 #include "glhf/skin.h"
+#include <algorithm>
 
 namespace glhf {
 
