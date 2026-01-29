@@ -8,30 +8,30 @@ namespace glhf {
 
 // doubly connected edge list
 struct DCEL {
-    struct vertex;
-    struct face;
-    struct half_edge {
-        vertex *a;
-        vertex *b;
-        face *face;
-        half_edge *next;
-        half_edge *prev;
-        half_edge *opposite;
+    struct Vertex;
+    struct Face;
+    struct HalfEdge {
+        Vertex *a;
+        Vertex *b;
+        Face *face;
+        HalfEdge *next;
+        HalfEdge *prev;
+        HalfEdge *opposite;
     };
 
-    struct vertex {
-        explicit vertex(const glm::vec3 &p_) : p{p_} {}
+    struct Vertex {
+        explicit Vertex(const glm::vec3 &p_) : p{p_} {}
         glm::vec3 p;
-        half_edge *edge;
+        HalfEdge *edge;
         operator glm::vec3() const { return p; }
     };
 
-    struct face {
-        half_edge *edge;
+    struct Face {
+        HalfEdge *edge;
         glm::vec3 center() const {
             glm::vec3 P{0.0f, 0.0f, 0.0f};
             size_t count{0};
-            for_each_edge([&](const half_edge &he) {
+            for_each_edge([&](const HalfEdge &he) {
                 P += *he.a;
                 ++count;
             });
@@ -46,14 +46,14 @@ struct DCEL {
             return glm::cross(AB, AC);
         }
         template <typename Callable> void for_each_edge(Callable callable) {
-            half_edge *he = edge;
+            HalfEdge *he = edge;
             do {
                 callable(*he);
                 he = he->next;
             } while (he != edge);
         }
         template <typename Callable> void for_each_edge(Callable callable) const {
-            const half_edge *he = edge;
+            const HalfEdge *he = edge;
             do {
                 callable(*he);
                 he = he->next;
@@ -64,7 +64,7 @@ struct DCEL {
     DCEL(const Polyhedron &polyhedron);
     ~DCEL() noexcept;
 
-    size_t indexOf(const half_edge *edge) {
+    size_t indexOf(const HalfEdge *edge) {
         size_t i{0};
         for (const auto &e : edges) {
             if (&e == edge) {
@@ -75,14 +75,14 @@ struct DCEL {
         return SIZE_MAX;
     }
 
-    std::unordered_set<const half_edge *> uniqueEdges() const;
+    std::unordered_set<const HalfEdge *> uniqueEdges() const;
 
     void quadratize() {
         auto unique_edges = uniqueEdges();
         for (auto *ue : unique_edges) {
             if (glm::dot(glm::normalize(ue->face->normal()),
                          glm::normalize(ue->opposite->face->normal())) > 0.999f) {
-                size_t removed_faces = faces.remove_if([ue](const DCEL::face &f) {
+                size_t removed_faces = faces.remove_if([ue](const DCEL::Face &f) {
                     return &f == ue->face || &f == ue->opposite->face;
                 });
                 LOGV_TRACE(removed_faces);
@@ -120,15 +120,15 @@ struct DCEL {
                 }
 
                 size_t removed_edges = edges.remove_if(
-                    [ue, ue_o](const DCEL::half_edge &e) { return &e == ue || &e == ue_o; });
+                    [ue, ue_o](const DCEL::HalfEdge &e) { return &e == ue || &e == ue_o; });
                 LOGV_TRACE(removed_edges);
             }
         }
     }
 
-    std::list<face> faces;
-    std::list<half_edge> edges;
-    std::list<vertex> vertices;
+    std::list<Face> faces;
+    std::list<HalfEdge> edges;
+    std::list<Vertex> vertices;
 };
 
 } // namespace glhf

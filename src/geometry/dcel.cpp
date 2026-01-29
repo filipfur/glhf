@@ -3,12 +3,12 @@
 #include <unordered_map>
 
 glhf::DCEL::DCEL(const glhf::Polyhedron &polyhedron) {
-    std::unordered_map<uint16_t, glhf::DCEL::vertex *> vmap;
-    std::unordered_map<uint16_t, std::unordered_map<uint16_t, glhf::DCEL::half_edge *>> emap;
+    std::unordered_map<uint16_t, glhf::DCEL::Vertex *> vmap;
+    std::unordered_map<uint16_t, std::unordered_map<uint16_t, glhf::DCEL::HalfEdge *>> emap;
     for (const auto &pface : polyhedron.faces) {
         auto &face = faces.emplace_back();
-        half_edge *he = nullptr;
-        half_edge *prev = nullptr;
+        HalfEdge *he = nullptr;
+        HalfEdge *prev = nullptr;
         for (size_t i = pface.size() - 1, j = 0; j < pface.size(); i = j++) {
             uint16_t ii = pface[i];
             uint16_t ij = pface[j];
@@ -45,9 +45,9 @@ glhf::DCEL::DCEL(const glhf::Polyhedron &polyhedron) {
 
 glhf::DCEL::~DCEL() noexcept { faces.clear(); }
 
-std::unordered_set<const glhf::DCEL::half_edge *> glhf::DCEL::uniqueEdges() const {
-    std::unordered_set<const glhf::DCEL::half_edge *> unique_edges;
-    for (const glhf::DCEL::half_edge &edge : edges) {
+std::unordered_set<const glhf::DCEL::HalfEdge *> glhf::DCEL::uniqueEdges() const {
+    std::unordered_set<const glhf::DCEL::HalfEdge *> unique_edges;
+    for (const glhf::DCEL::HalfEdge &edge : edges) {
         auto it = unique_edges.find(&edge);
         auto it2 = unique_edges.find(edge.opposite);
         if (it == unique_edges.end() && it2 == unique_edges.end()) {
