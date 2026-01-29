@@ -1,10 +1,10 @@
 #pragma once
 
-// #include "face_iterator.h"
 #include "glhf/geometry/plane.h"
 #include "glhf/geometry/polygon.h"
 #include "glhf/geometry/triangle.h"
 #include "glhf/mesh.h"
+#include <algorithm>
 #include <cstdint>
 #include <glm/glm.hpp>
 #include <span>
