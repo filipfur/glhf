@@ -1,27 +1,19 @@
 #include "glhf/node.h"
 
-static void _invalidateRecursive(glhf::Node *node) {
-    node->invalidate();
-    for (glhf::Node *child : node->children) {
-        _invalidateRecursive(child);
-    }
-}
-
-void glhf::Node::render(glhf::ShaderProgram *shaderProgram) {
-    if (parent() == nullptr && !isValid()) {
-        _invalidateRecursive(this);
-    }
+void glhf::Node::render(glhf::ShaderProgram &shaderProgram) {
     if (skin) {
-        glhf::Skin::updateBoneMatrices(skin, glm::inverse(model()));
+        glhf::Skin::updateBoneMatrices(*skin, glm::inverse(transformation()));
     }
-    for (Node *child : children) {
+    for (const auto &child : children) {
         child->render(shaderProgram);
     }
     if (mesh && !mesh->hidden && !mesh->primitives.empty()) {
-        shaderProgram->uniforms.at("u_model") << model();
-        for (auto &primitive : mesh->primitives) {
-            primitive.bindMaterial(shaderProgram);
-            primitive.render();
+        shaderProgram.uniforms.at("u_model") << transformation();
+        for (size_t i{0}; i < mesh->primitives.size(); ++i) {
+            if (i < mesh->materials.size() && mesh->materials[i]) {
+                mesh->materials[i]->bind(shaderProgram);
+            }
+            mesh->primitives[i]->render();
         }
     }
 }

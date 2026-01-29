@@ -4,26 +4,19 @@
 #include "glhf/shader.h"
 #include "glhf/skin.h"
 #include "glhf/trs.h"
+#include <memory>
 
 namespace glhf {
 struct Node : public TRS {
     std::string_view name;
-    std::vector<Node *> children;
-    Mesh *mesh;
-    Skin *skin;
-    void render(glhf::ShaderProgram *shaderProgram);
-
-    Node clone() const {
-        Node node;
-        node.name = name;
-        node.mesh = mesh;
-        node.skin = skin;
-        return node;
-    }
+    std::vector<std::shared_ptr<Node>> children;
+    std::shared_ptr<Mesh> mesh;
+    std::shared_ptr<Skin> skin;
+    void render(glhf::ShaderProgram &shaderProgram);
 
     template <typename RecurPred> void recursive(RecurPred p, int depth = 0) {
         p(this, depth);
-        for (glhf::Node *child : children) {
+        for (const auto &child : children) {
             child->recursive(p, depth + 1);
         }
     }
@@ -33,10 +26,24 @@ struct Node : public TRS {
             return this;
         }
         glhf::Node *node = nullptr;
-        for (glhf::Node *child : children) {
-            node = node ? node : child->find(p);
+        for (const auto &child : children) {
+            node = child->find(p);
+            if (node) {
+                break;
+            }
         }
         return node;
+    }
+
+    template <typename UnaryPred> std::shared_ptr<Node> findChild(UnaryPred p) {
+        for (const auto &child : children) {
+            if (p(*child)) {
+                return child;
+            } else {
+                child->findChild(p);
+            }
+        }
+        return nullptr;
     }
 };
 } // namespace glhf

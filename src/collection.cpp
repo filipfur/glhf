@@ -1,6 +1,7 @@
 #include "glhf/collection.h"
 #include "glhf/log.h"
-#include "glhf/primitive_descriptor.h"
+#include "glhf/material.h"
+#include "glhf/primitive/primitive_descriptor.h"
 
 #include <iostream>
 
@@ -8,38 +9,40 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
     gltf.loadGLB(glb);
     textures.reserve(gltf.textures.size());
     for (const auto &gltfTexture : gltf.textures) {
-        textures.emplace_back((uint8_t *)gltfTexture.image->bufferView->data(),
-                              gltfTexture.image->bufferView->length, false);
+        textures.emplace_back(new glhf::Texture((uint8_t *)gltfTexture.image->bufferView->data(),
+                                                gltfTexture.image->bufferView->length, false));
         // TODO:
         // texture.setFilter(gltfTexture.sampler->magFilter, gltfTexture.sampler->minFilter);
     }
     materials.reserve(gltf.materials.size());
     constexpr uint8_t pixel[] = {0xFF, 0xFF, 0xFF};
-    static Texture defaultTexture{pixel, 1, 1, Texture::RGB, GL_UNSIGNED_BYTE};
-    static Material defaultMaterial{.name = "Default",
-                                    .color = rgb(255, 255, 255),
-                                    .metallic = 0.0f,
-                                    .roughness = 0.5f,
-                                    .textures = {{GL_TEXTURE0, &defaultTexture}}};
+    static std::shared_ptr<Texture> defaultTexture{
+        new glhf::Texture{pixel, 1, 1, Texture::RGB, GL_UNSIGNED_BYTE}};
+    static std::shared_ptr<Material> defaultMaterial{
+        new glhf::Material{.name = "Default",
+                           .color = rgb(255, 255, 255),
+                           .metallic = 0.0f,
+                           .roughness = 0.5f,
+                           .textures = {{GL_TEXTURE0, defaultTexture}}}};
     for (const auto &gltfMaterial : gltf.materials) {
-        auto &material = materials.emplace_back();
-        material.name = gltfMaterial.name;
-        material.color = gltfMaterial.baseColor;
-        material.metallic = gltfMaterial.metallic;
-        material.roughness = gltfMaterial.roughness;
+        auto &material = materials.emplace_back(new glhf::Material());
+        material->name = gltfMaterial.name;
+        material->color = gltfMaterial.baseColor;
+        material->metallic = gltfMaterial.metallic;
+        material->roughness = gltfMaterial.roughness;
         if (gltfMaterial.textures.empty()) {
-            material.textures.emplace(GL_TEXTURE0, &defaultTexture);
+            material->textures.emplace(GL_TEXTURE0, defaultTexture);
         } else {
             for (auto texIndex : gltfMaterial.textures) {
-                material.textures.emplace(GL_TEXTURE0 + material.textures.size(),
-                                          &textures.at(texIndex));
+                material->textures.emplace(GL_TEXTURE0 + material->textures.size(),
+                                           textures.at(texIndex));
             }
         }
     }
     meshes.reserve(gltf.meshes.size());
     for (const auto &gltfMesh : gltf.meshes) {
-        auto &mesh = meshes.emplace_back();
-        mesh.name = gltfMesh.name;
+        auto &mesh = meshes.emplace_back(new glhf::Mesh());
+        mesh->name = gltfMesh.name;
         for (const auto &gltfPrimitive : gltfMesh.primitives) {
             std::vector<glm::vec3> tangents;
             if (options & TANGENTS) {
@@ -74,7 +77,7 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
 
             if (options & SKINNING && gltfPrimitive.attributes[glhf::Gltf::Primitive::JOINTS_0]) {
                 if (options & TANGENTS) {
-                    mesh.primitives.push_back(
+                    mesh->primitives.push_back(
                         glhf::PositionNormalUVTangentJointWeight.createPrimitive(
                             {
                                 gltfPrimitive.attributes[glhf::Gltf::Primitive::POSITION]->bytes(),
@@ -88,7 +91,7 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
                             },
                             gltfPrimitive.indices16()));
                 } else {
-                    mesh.primitives.push_back(glhf::PositionNormalUVJointWeight.createPrimitive(
+                    mesh->primitives.push_back(glhf::PositionNormalUVJointWeight.createPrimitive(
                         {
                             gltfPrimitive.attributes[glhf::Gltf::Primitive::POSITION]->bytes(),
                             gltfPrimitive.attributes[glhf::Gltf::Primitive::NORMAL]->bytes(),
@@ -100,7 +103,7 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
                 }
             } else {
                 if (options & TANGENTS) {
-                    mesh.primitives.push_back(glhf::PositionNormalUVTangent.createPrimitive(
+                    mesh->primitives.push_back(glhf::PositionNormalUVTangent.createPrimitive(
                         {
                             gltfPrimitive.attributes[glhf::Gltf::Primitive::POSITION]->bytes(),
                             gltfPrimitive.attributes[glhf::Gltf::Primitive::NORMAL]->bytes(),
@@ -111,7 +114,7 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
                         gltfPrimitive.indices16()));
 
                 } else {
-                    mesh.primitives.push_back(glhf::PositionNormalUV.createPrimitive(
+                    mesh->primitives.push_back(glhf::PositionNormalUV.createPrimitive(
                         {
                             gltfPrimitive.attributes[glhf::Gltf::Primitive::POSITION]->bytes(),
                             gltfPrimitive.attributes[glhf::Gltf::Primitive::NORMAL]->bytes(),
@@ -120,21 +123,23 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
                         gltfPrimitive.indices16()));
                 }
             }
-            mesh.primitives.back().material = (gltfPrimitive.material == glhf::Gltf::nullindex)
-                                                  ? &defaultMaterial
-                                                  : &materials.at(gltfPrimitive.material);
+            mesh->materials.push_back((gltfPrimitive.material == glhf::Gltf::nullindex)
+                                          ? defaultMaterial
+                                          : materials.at(gltfPrimitive.material));
         }
     }
     nodes.resize(gltf.nodes.size());
+    std::for_each(nodes.begin(), nodes.end(),
+                  [](std::shared_ptr<glhf::Node> &node) { node.reset(new glhf::Node()); });
     skins.reserve(gltf.skins.size());
     for (const auto &gltfSkin : gltf.skins) {
-        auto &skin = skins.emplace_back();
-        skin.name = gltfSkin.name;
+        auto &skin = skins.emplace_back(new glhf::Skin());
+        skin->name = gltfSkin.name;
         for (glhf::Gltf::Index_t j : gltfSkin.joints) {
-            skin.joints.push_back(&nodes.at(j));
+            skin->joints.push_back(nodes.at(j));
         }
-        assert(skin.joints.size() <= glhf::Skin::MAX_BONES);
-        skin.inverseBindMatrices = gltfSkin.inverseBindMatrices->span<glm::mat4>();
+        assert(skin->joints.size() <= glhf::Skin::MAX_BONES);
+        skin->inverseBindMatrices = gltfSkin.inverseBindMatrices->span<glm::mat4>();
     }
     animations.reserve(gltf.animations.size());
     for (const auto &gltfAnimation : gltf.animations) {
@@ -153,7 +158,7 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
             sampler.input = gltfSampler.input->span<float>();
             sampler.index = 0;
             sampler.endIndex = gltfSampler.input->count;
-            Node *node = &nodes.at(gltfChannel.targetNode);
+            Node *node = nodes.at(gltfChannel.targetNode).get();
             auto outIt = sampler.outputs.find(node);
             if (outIt == sampler.outputs.end()) {
                 sampler.outputs[node] = {};
@@ -174,22 +179,22 @@ void glhf::Collection::fromGLB(const char *glb, Options options) {
     }
     auto nodeIt = nodes.begin();
     for (const auto &gltfNode : gltf.nodes) {
-        auto &node = *nodeIt;
+        auto &node = *nodeIt->get();
         node.name = gltfNode.name;
-        node.mesh = gltfNode.mesh == glhf::Gltf::nullindex ? nullptr : &meshes.at(gltfNode.mesh);
-        node.skin = gltfNode.skin == glhf::Gltf::nullindex ? nullptr : &skins.at(gltfNode.skin);
-        node.translation = gltfNode.translation;
-        node.rotation = gltfNode.rotation;
-        node.scale = gltfNode.scale;
+        node.mesh = gltfNode.mesh == glhf::Gltf::nullindex ? nullptr : meshes.at(gltfNode.mesh);
+        node.skin = gltfNode.skin == glhf::Gltf::nullindex ? nullptr : skins.at(gltfNode.skin);
+        node.translation() = gltfNode.translation;
+        node.rotation() = gltfNode.rotation;
+        node.scale() = gltfNode.scale;
         for (glhf::Gltf::Index_t child : gltfNode.children) {
-            node.children.push_back(&nodes.at(child));
-            nodes.at(child).setParent(&node);
+            node.children.push_back(nodes.at(child));
+            nodes.at(child)->setParent(&node);
         }
         ++nodeIt;
     }
     scene.name = gltf.scene.name;
     for (glhf::Gltf::Index_t node : gltf.scene.nodes) {
-        scene.nodes.push_back(&nodes[node]);
+        scene.nodes.push_back(nodes.at(node));
         scene.nodes.back()->recursive(
             []([[maybe_unused]] glhf::Node *node, [[maybe_unused]] int depth) {
                 LOG_TRACE("%*s%.*s%s%s", depth * 2, "", (int)node->name.size(), node->name.data(),

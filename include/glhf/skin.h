@@ -1,5 +1,6 @@
 #pragma once
 
+#include "glhf/trs.h"
 #include "glhf/uniformbuffer.h"
 #include <glm/glm.hpp>
 #include <span>
@@ -14,9 +15,9 @@ struct Skin {
     static Block block;
     static UniformBuffer *UBO;
     static void createUBO();
-    static void updateBoneMatrices(Skin *skin, const glm::mat4 &globalWorldInverse);
+    static void updateBoneMatrices(Skin &skin, const glm::mat4 &globalWorldInverse);
     std::string_view name;
-    std::vector<struct Node *> joints;
+    std::vector<std::shared_ptr<TRS>> joints;
     std::span<glm::mat4> inverseBindMatrices;
 };
 } // namespace glhf

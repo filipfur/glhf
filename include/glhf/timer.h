@@ -8,6 +8,8 @@ class Timer {
     Timer();
     Timer(Time::Raw duration);
 
+    operator bool() const { return active(); }
+
     bool active() const;
     Time::Raw timeLeft() const;
     float progress() const;
@@ -18,7 +20,6 @@ class Timer {
 
   private:
     Time::Raw _duration;
-    bool _active;
     Time::Raw _expired;
 };
 } // namespace glhf

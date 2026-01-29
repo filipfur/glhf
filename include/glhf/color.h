@@ -18,6 +18,7 @@ class Color {
 
     static Color opacity(float val);
 
+    Color operator+(const glm::vec3 &other) const;
     Color operator*(const Color &other) const;
 
     operator glm::vec4() const;

@@ -68,22 +68,14 @@ struct IApplication {
     };
 };
 
-void _mainLoop();
-
 struct Window {
-    explicit Window(IApplication &iApplication);
-    void load(const char *title, int width, int height, bool fullscreen);
-    void run();
+    static void create(IApplication *iApplication, const char *title, int width, int height,
+                       bool fullscreen);
+    static void run();
 
-  protected:
-    friend void _mainLoop();
-    bool _running;
-    IApplication &_iApplication;
-    int _width;
-    int _height;
-    int _drawableWidth;
-    int _drawableHeight;
-    SDL_Window *_window{nullptr};
-    SDL_GLContext _glContext{nullptr};
+    static int WIDTH;
+    static int HEIGHT;
+    static int BUFFER_WIDTH;
+    static int BUFFER_HEIGHT;
 };
 } // namespace glhf

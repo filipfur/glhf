@@ -4,7 +4,7 @@
 #include "glhf/collection.h"
 #include "glhf/gltf.h"
 #include "glhf/log.h"
-#include "glhf/primitive_descriptor.h"
+#include "glhf/primitive/primitive_descriptor.h"
 #include "glhf/shader.h"
 #include "glhf/time.h"
 #include <glm/glm.hpp>
@@ -31,7 +31,8 @@ struct Application : public glhf::IApplication {
         glDepthFunc(GL_LESS);
 
         _shaderProgram.reset(new glhf::ShaderProgram(
-            {{"u_texture", 0}}, {}, {GL_VERTEX_SHADER, (const char *)_glhf_shaders_screen_vert},
+            {{"u_texture", 0}, {"u_color", glm::vec4{1.0f}}}, {},
+            {GL_VERTEX_SHADER, (const char *)_glhf_shaders_screen_vert},
             {GL_FRAGMENT_SHADER, (const char *)_glhf_shaders_texture_frag}));
     }
 
@@ -58,14 +59,14 @@ struct Application : public glhf::IApplication {
             {1.0f, 1.0f, 1.0f, 1.0f},
         };
         static uint16_t screen_indices[] = {0, 1, 2, 2, 1, 3};
-        static glhf::Primitive screen_primitive = glhf::XYUV.createPrimitive(
+        static std::shared_ptr<glhf::Primitive> screen_primitive = glhf::XYUV.createPrimitive(
             {std::span<uint8_t>((uint8_t *)screen_vertices, sizeof(screen_vertices))},
             std::span<uint16_t>(screen_indices));
         static glhf::Texture texture{_glhf_images_sheep_png,
                                      (uint32_t)_glhf_images_sheep_png_length, true};
         glActiveTexture(GL_TEXTURE0);
         texture.bind();
-        screen_primitive.render();
+        screen_primitive->render();
     }
 
     std::shared_ptr<glhf::ShaderProgram> _shaderProgram;
@@ -75,8 +76,8 @@ int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
     Application app;
-    glhf::Window window{app};
-    window.load("hello_image", WINDOW_WIDTH, WINDOW_HEIGHT, false);
+    glhf::Window window;
+    window.create(&app, "hello_image", WINDOW_WIDTH, WINDOW_HEIGHT, false);
     window.run();
     return 0;
 }

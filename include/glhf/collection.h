@@ -2,6 +2,7 @@
 
 #include "glhf/animation.h"
 #include "glhf/gltf.h"
+#include "glhf/material.h"
 #include "glhf/node.h"
 #include "glhf/predicate.h"
 #include "glhf/skin.h"
@@ -11,10 +12,16 @@ namespace glhf {
 
 struct Scene {
     std::string_view name;
-    std::vector<Node *> nodes;
-    template <class UnaryPred> glhf::Node *findNode(UnaryPred p) {
-        auto it = std::find_if(nodes.begin(), nodes.end(), p);
-        return it == nodes.end() ? nullptr : *it;
+    std::vector<std::shared_ptr<Node>> nodes;
+    template <class UnaryPred> std::shared_ptr<glhf::Node> findNode(UnaryPred p) {
+        std::shared_ptr<glhf::Node> rval;
+        for (const auto &node : nodes) {
+            if (p(*node)) {
+                rval = node;
+                break;
+            }
+        }
+        return rval;
     }
 };
 
@@ -48,11 +55,11 @@ struct Collection {
     }
 
     Gltf gltf;
-    std::vector<Texture> textures;
-    std::vector<Material> materials;
-    std::vector<Mesh> meshes;
-    std::vector<Node> nodes;
-    std::vector<Skin> skins;
+    std::vector<std::shared_ptr<Texture>> textures;
+    std::vector<std::shared_ptr<Material>> materials;
+    std::vector<std::shared_ptr<Mesh>> meshes;
+    std::vector<std::shared_ptr<Node>> nodes;
+    std::vector<std::shared_ptr<Skin>> skins;
     std::vector<Animation> animations;
     Scene scene;
 };

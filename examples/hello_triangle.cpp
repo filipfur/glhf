@@ -2,7 +2,7 @@
 
 #include "glhf/framebuffer.h"
 #include "glhf/log.h"
-#include "glhf/primitive_descriptor.h"
+#include "glhf/primitive/primitive_descriptor.h"
 #include "glhf/shader.h"
 #include "glhf/texture.h"
 #include "glhf/time.h"
@@ -151,16 +151,16 @@ struct Application : public glhf::IApplication {
         _checkersTexture.reset(new glhf::Texture(
             checkersPattern.data, checkersPattern.width, checkersPattern.height,
             static_cast<glhf::Texture::Channels>(checkersPattern.channels), GL_UNSIGNED_BYTE));
-        _fbo.reset(new glhf::Framebuffer());
-        _fbo->bind();
-        _fbo->createTexture(GL_COLOR_ATTACHMENT0, width * 2, height * 2, glhf::Texture::RGB,
-                            GL_UNSIGNED_BYTE);
-        _fbo->textures.at(GL_COLOR_ATTACHMENT0)->bind();
+        _msaaFBO.reset(new glhf::Framebuffer());
+        _msaaFBO->bind();
+        _msaaFBO->createTexture(GL_COLOR_ATTACHMENT0, width * 2, height * 2, glhf::Texture::RGB,
+                                GL_UNSIGNED_BYTE);
+        _msaaFBO->textures.at(GL_COLOR_ATTACHMENT0)->bind();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
-        _fbo->createRenderBufferDS(width * 2, height * 2);
-        _fbo->unbind();
+        _msaaFBO->createRenderBufferDS(width * 2, height * 2);
+        _msaaFBO->unbind();
     }
     void fps(float frames) override { (void)frames; }
     bool update(float dt) override {
@@ -173,7 +173,7 @@ struct Application : public glhf::IApplication {
 
         if (_antialiasing) {
             glViewport(0, 0, width * 2, height * 2);
-            _fbo->bind();
+            _msaaFBO->bind();
         }
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -183,15 +183,15 @@ struct Application : public glhf::IApplication {
         _triShader->uniforms.at("u_model")
             << glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(0.33f)), glhf::Time::seconds(),
                            glm::vec3{0.0f, 0.0f, 1.0f});
-        primitives.at(PRIMITIVE_TRIANGLE).render();
+        primitives.at(PRIMITIVE_TRIANGLE)->render();
         if (_antialiasing) {
-            _fbo->unbind();
+            _msaaFBO->unbind();
             glViewport(0, 0, width, height);
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            _fbo->textures.at(GL_COLOR_ATTACHMENT0)->bind();
+            _msaaFBO->textures.at(GL_COLOR_ATTACHMENT0)->bind();
             _screenShader->use();
-            primitives.at(PRIMITIVE_SCREEN).render();
+            primitives.at(PRIMITIVE_SCREEN)->render();
         }
     }
     bool event(const SDL_Event &ev) override {
@@ -208,7 +208,7 @@ struct Application : public glhf::IApplication {
         return IApplication::event(ev);
     }
 
-    std::vector<glhf::Primitive> primitives;
+    std::vector<std::shared_ptr<glhf::Primitive>> primitives;
     CameraBlock _cameraBlock{
         .u_projection =
             glm::perspective(glm::radians(45.0f), WINDOW_SIZE.x / WINDOW_SIZE.y, 0.01f, 100.0f),
@@ -224,7 +224,7 @@ struct Application : public glhf::IApplication {
     std::shared_ptr<glhf::ShaderProgram> _triShader;
     std::shared_ptr<glhf::ShaderProgram> _screenShader;
     std::shared_ptr<glhf::Texture> _checkersTexture;
-    std::shared_ptr<glhf::Framebuffer> _fbo;
+    std::shared_ptr<glhf::Framebuffer> _msaaFBO;
     bool _antialiasing{true};
 };
 
@@ -232,8 +232,8 @@ int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
     Application app;
-    glhf::Window window{app};
-    window.load("hello_triangle", WINDOW_WIDTH, WINDOW_HEIGHT, false);
+    glhf::Window window;
+    window.create(&app, "hello_triangle", WINDOW_WIDTH, WINDOW_HEIGHT, false);
     window.run();
     return 0;
 }

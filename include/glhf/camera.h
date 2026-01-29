@@ -13,8 +13,6 @@ struct Camera {
         float padding;
     };
 
-    static constexpr glm::vec3 UP{0.0f, 1.0f, 0.0f};
-
     Camera(const glm::mat4 &projection)
         : block{projection, glm::mat4{1.0f}, glm::vec3{0.0f}, 0.0f}, center{0.0f, 0.0f, 0.0f},
           distance{10.0f}, yaw{0.0f}, pitch{0.0f} {}

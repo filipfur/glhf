@@ -5,7 +5,8 @@
 #include "glhf/gltf.h"
 #include "glhf/instance_factory.h"
 #include "glhf/log.h"
-#include "glhf/primitive_descriptor.h"
+#include "glhf/material.h"
+#include "glhf/primitive/primitive_descriptor.h"
 #include "glhf/shader.h"
 #include "glhf/time.h"
 #include <glm/glm.hpp>
@@ -56,12 +57,18 @@ struct Application : public glhf::IApplication {
         }
         assert(i == 101 * 101);
 
-        glhf::Node *cubeNode = _collections.back().scene.nodes.front();
-        cubeNode->mesh->primitives.front().material->color = rgb(212, 255, 119);
+        std::shared_ptr<glhf::Node> cubeNode = _collections.back().scene.nodes.front();
         assert(cubeNode->mesh->name == "Cube");
         _instanceFactory.reset(new glhf::InstanceFactory<glm::mat4>(
-            &cubeNode->mesh->primitives.front(), glhf::PositionNormalUV.attributes.size(),
-            std::span<glm::mat4>(instances)));
+            cubeNode->mesh->primitives.front(),
+            std::shared_ptr<glhf::Material>(new glhf::Material{
+                .name = "GreenMaterial",
+                .color = rgb(212, 255, 119),
+                .metallic = 0.0f,
+                .roughness = 0.0f,
+                .textures = {},
+            }),
+            glhf::PositionNormalUV.attributes.size(), std::span<glm::mat4>(instances)));
 
         _instShader.reset(new glhf::ShaderProgram(
             {{"u_model", glm::mat4(1.0f)}, {"u_texture", 0}, {"u_color", glm::vec4(1.0f)}},
@@ -102,11 +109,11 @@ struct Application : public glhf::IApplication {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         _instShader->use();
-        _instanceFactory->render(_instShader.get());
+        _instanceFactory->render(*_instShader);
         _animShader->use();
-        for (auto *node : _activeCollection->scene.nodes) {
-            if (node->find([](const glhf::Node &node) { return node.skin; })) {
-                node->render(_animShader.get());
+        for (const auto &node : _activeCollection->scene.nodes) {
+            if (node->find([](const glhf::Node &node) { return bool(node.skin); })) {
+                node->render(*_animShader);
             }
         }
     }
@@ -160,8 +167,8 @@ int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
     Application app;
-    glhf::Window window{app};
-    window.load("hello_dancer", WINDOW_WIDTH, WINDOW_HEIGHT, false);
+    glhf::Window window;
+    window.create(&app, "hello_dancer", WINDOW_WIDTH, WINDOW_HEIGHT, false);
     window.run();
     return 0;
 }

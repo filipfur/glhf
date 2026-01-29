@@ -19,7 +19,6 @@ option(BUILD_TOOLS "BUILD_TOOLS" ON)
 option(BUILD_ASSETS "BUILD_ASSETS" ${IS_TOP_LEVEL_PROJECT})
 option(BUILD_EXAMPLES "BUILD_EXAMPLES" ${IS_TOP_LEVEL_PROJECT})
 option(BUILD_TESTS "BUILD_TESTS" ${IS_TOP_LEVEL_PROJECT})
-option(BUILD_LOG_LEVEL "BUILD_LOG_LEVEL" 3)
 
 add_subdirectory(third_party)
 
@@ -32,6 +31,11 @@ endif()
 find_package(SDL2 CONFIG REQUIRED)
 
 add_library(glhf
+    src/geometry/dcel.cpp
+    src/geometry/geometry.cpp
+    src/geometry/polygon.cpp
+    src/geometry/polyhedron.cpp
+    src/geometry/ray.cpp
     src/animation.cpp
     src/camera.cpp
     src/collection.cpp
@@ -74,8 +78,6 @@ endif()
 if(BUILD_ASSETS)
     add_subdirectory(assets)
 endif()
-
-target_compile_definitions(glhf PUBLIC LOG_LEVEL=${BUILD_LOG_LEVEL})
 
 if(BUILD_EXAMPLES)
     add_subdirectory(examples)

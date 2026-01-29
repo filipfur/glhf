@@ -112,6 +112,10 @@ glhf::Color::Color(const glm::vec3 &rgb) : _rgba{rgb.x, rgb.y, rgb.z, 1.0f} {}
 
 glhf::Color glhf::Color::opacity(float val) { return glhf::Color{1.0f, 1.0f, 1.0f, val}; }
 
+glhf::Color glhf::Color::operator+(const glm::vec3 &other) const {
+    return {glm::vec4(this->vec3() + other, this->_rgba.a)};
+}
+
 glhf::Color glhf::Color::operator*(const glhf::Color &other) const {
     return {this->vec4() * other.vec4()};
 }
