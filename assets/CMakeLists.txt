@@ -5,8 +5,6 @@ embed_assets(glhf_images
 embed_assets(glhf_objects
     ${CMAKE_CURRENT_SOURCE_DIR}/objects/cube.glb
     ${CMAKE_CURRENT_SOURCE_DIR}/objects/joyful_vampire.glb
-    ${CMAKE_CURRENT_SOURCE_DIR}/objects/factory.glb
-    ${CMAKE_CURRENT_SOURCE_DIR}/objects/room.glb
 )
 
 if(EMSCRIPTEN)
@@ -21,7 +19,6 @@ embed_assets(glhf_shaders ${CMAKE_CURRENT_SOURCE_DIR}/shaders/object.vert
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/object_normal.frag
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/normal.frag
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/texture.frag
-    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/factory.frag
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/pbr.glsl
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/linear_depth.glsl
 )
