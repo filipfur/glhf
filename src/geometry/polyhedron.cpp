@@ -60,7 +60,7 @@ glhf::Polyhedron::split(const glhf::Plane &plane) const {
 glhf::Polyhedron glhf::createPolyhedron(std::span<glm::vec3> vs, std::span<uint16_t> is) {
     Polyhedron polyhedron{
         .vertices{vs.begin(), vs.end()},
-        .faces{is.size() / 3},
+        .faces{static_cast<size_t>(is.size() / 3)},
     };
     for (size_t i{0}; i < is.size(); i += 3) {
         auto &face = polyhedron.faces.at(i / 3);
