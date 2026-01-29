@@ -5,10 +5,10 @@ glhf::UniformBuffer *glhf::Skin::UBO{nullptr};
 
 glhf::Skin::Block glhf::Skin::block{};
 
-void glhf::Skin::updateBoneMatrices(Skin *skin, const glm::mat4 &globalWorldInverse) {
-    for (size_t j{0}; j < skin->joints.size() && j < glhf::Skin::MAX_BONES; ++j) {
+void glhf::Skin::updateBoneMatrices(Skin &skin, const glm::mat4 &globalWorldInverse) {
+    for (size_t j{0}; j < skin.joints.size() && j < glhf::Skin::MAX_BONES; ++j) {
         block.bones[j] =
-            globalWorldInverse * skin->joints.at(j)->model() * skin->inverseBindMatrices[j];
+            globalWorldInverse * skin.joints.at(j)->transformation() * skin.inverseBindMatrices[j];
     }
     UBO->bind();
     UBO->bufferData(&block, sizeof(glhf::Skin::Block));

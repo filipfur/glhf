@@ -16,15 +16,17 @@ void glhf::Animation::update(float dt) {
         }
         for (auto [node, channel] : sampler.outputs) {
             if (sampler.index < channel.translations.size()) {
-                node->translation = glm::mix(node->t(), channel.translations[sampler.index], 0.5f);
+                node->translation() =
+                    glm::mix(node->translation(), channel.translations[sampler.index], 0.5f);
                 // node->translation = channel.translations[sampler.index];
             }
             if (sampler.index < channel.rotations.size()) {
-                node->rotation = glm::slerp(node->r(), channel.rotations[sampler.index], 0.5f);
+                node->rotation() =
+                    glm::slerp(node->rotation(), channel.rotations[sampler.index], 0.5f);
                 // node->rotation = channel.rotations[sampler.index];
             }
             if (sampler.index < channel.scales.size()) {
-                node->scale = glm::mix(node->s(), channel.scales[sampler.index], 0.5f);
+                node->scale() = glm::mix(node->scale(), channel.scales[sampler.index], 0.5f);
                 // node->scale = channel.scales[sampler.index];
             }
         }

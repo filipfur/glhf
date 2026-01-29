@@ -17,5 +17,8 @@ embed_assets(glhf_shaders ${CMAKE_CURRENT_SOURCE_DIR}/shaders/object.vert
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/screen.vert
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/object.frag
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/object_normal.frag
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/normal.frag
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/texture.frag
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/pbr.glsl
+    ${CMAKE_CURRENT_SOURCE_DIR}/shaders/linear_depth.glsl
 )

@@ -4,7 +4,7 @@
 #include "glhf/collection.h"
 #include "glhf/gltf.h"
 #include "glhf/log.h"
-#include "glhf/primitive_descriptor.h"
+#include "glhf/primitive/primitive_descriptor.h"
 #include "glhf/shader.h"
 #include "glhf/time.h"
 #include <glm/glm.hpp>
@@ -36,7 +36,7 @@ struct Application : public glhf::IApplication {
                                   glhf::Collection::NO_OPTIONS);
 
         _cubeNode = _collections.back().scene.nodes.front();
-        _cubeNode->mesh->primitives.front().material->color = rgb(112, 54, 144);
+        _cubeNode->mesh->materials.front()->color = rgb(112, 54, 144);
 
         _objectShader.reset(new glhf::ShaderProgram(
             {{"u_model", glm::mat4(1.0f)}, {"u_texture", 0}, {"u_color", glm::vec4(1.0f)}},
@@ -57,13 +57,13 @@ struct Application : public glhf::IApplication {
         _camera.yaw += dt * glm::pi<float>() * 0.125f;
         _camera.update();
 
-        float y1 = _cubeNode->t().y + _cubeVerticalSpeed * dt;
+        float y1 = _cubeNode->translation().y + _cubeVerticalSpeed * dt;
         if (y1 < 0) {
             _cubeVerticalSpeed = 0.0f;
-            _cubeNode->translation = {0.0f, 0.0f, 0.0f};
+            _cubeNode->translation() = {0.0f, 0.0f, 0.0f};
         } else {
-            _cubeNode->translation = {0.0f, y1, 0.0f};
-            if (_cubeNode->t().y > 0.01f) {
+            _cubeNode->translation() = {0.0f, y1, 0.0f};
+            if (_cubeNode->translation().y > 0.01f) {
                 _cubeVerticalSpeed -= 9.82f * dt;
             }
         }
@@ -76,7 +76,7 @@ struct Application : public glhf::IApplication {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         _objectShader->use();
-        _cubeNode->render(_objectShader.get());
+        _cubeNode->render(*_objectShader);
     }
 
     bool event(const SDL_Event &ev) override {
@@ -84,7 +84,7 @@ struct Application : public glhf::IApplication {
         case SDL_KEYDOWN:
             switch (ev.key.keysym.sym) {
             case SDLK_SPACE:
-                if (_cubeNode->t().y < 0.01f) {
+                if (_cubeNode->translation().y < 0.01f) {
                     _cubeVerticalSpeed += 4.0f + (rand() % 100) * 0.02;
                 }
                 break;
@@ -101,7 +101,7 @@ struct Application : public glhf::IApplication {
         glm::perspective(glm::radians(45.0f), WINDOW_SIZE.x / WINDOW_SIZE.y, 0.01f, 100.0f)};
     std::shared_ptr<glhf::ShaderProgram> _objectShader;
     std::list<glhf::Collection> _collections;
-    glhf::Node *_cubeNode;
+    std::shared_ptr<glhf::Node> _cubeNode;
     float _cubeVerticalSpeed{0.0f};
 };
 
@@ -109,8 +109,8 @@ int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
     Application app;
-    glhf::Window window{app};
-    window.load("hello_cube", WINDOW_WIDTH, WINDOW_HEIGHT, false);
+    glhf::Window window;
+    window.create(&app, "hello_cube", WINDOW_WIDTH, WINDOW_HEIGHT, false);
     window.run();
     return 0;
 }

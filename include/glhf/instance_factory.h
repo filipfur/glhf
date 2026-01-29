@@ -1,14 +1,16 @@
 #pragma once
 
-#include "glhf/primitive.h"
+#include "glhf/material.h"
+#include "glhf/primitive/primitive.h"
 #include <glm/glm.hpp>
 #include <span>
 
 namespace glhf {
 
 template <typename T> struct InstanceFactory {
-    InstanceFactory(Primitive *primitive_, size_t N, std::span<T> instances_)
-        : primitive{primitive_}, instances{instances_} {
+    InstanceFactory(std::shared_ptr<Primitive> primitive_, std::shared_ptr<Material> material_,
+                    size_t N, std::span<T> instances_)
+        : primitive{primitive_}, material{material_}, instances{instances_} {
         glBindVertexArray(primitive->vertexArray);
         glGenBuffers(1, &instanceVBO);
         bufferData();
@@ -23,10 +25,7 @@ template <typename T> struct InstanceFactory {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    ~InstanceFactory() {
-        primitive = nullptr;
-        glDeleteBuffers(GL_ARRAY_BUFFER, &instanceVBO);
-    }
+    ~InstanceFactory() { glDeleteBuffers(GL_ARRAY_BUFFER, &instanceVBO); }
 
     InstanceFactory(const InstanceFactory &other) = delete;
     InstanceFactory &operator=(const InstanceFactory &other) = delete;
@@ -34,9 +33,11 @@ template <typename T> struct InstanceFactory {
     InstanceFactory(InstanceFactory &&other) = delete;
     InstanceFactory &operator=(InstanceFactory &&other) = delete;
 
-    void render(glhf::ShaderProgram *shaderProgram) {
-        shaderProgram->use();
-        primitive->bindMaterial(shaderProgram);
+    void render(glhf::ShaderProgram &shaderProgram) {
+        shaderProgram.use();
+        if (material) {
+            material->bind(shaderProgram);
+        }
         glBindVertexArray(primitive->vertexArray);
         glDrawElementsInstanced(GL_TRIANGLES, primitive->count, GL_UNSIGNED_SHORT, 0,
                                 instances.size());
@@ -45,7 +46,8 @@ template <typename T> struct InstanceFactory {
   private:
     void setupAttributePointers(size_t indexOffset);
 
-    Primitive *primitive;
+    std::shared_ptr<Primitive> primitive;
+    std::shared_ptr<Material> material;
     std::span<T> instances;
     unsigned int instanceVBO;
 };

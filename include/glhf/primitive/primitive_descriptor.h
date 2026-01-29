@@ -1,9 +1,15 @@
 #pragma once
 
-#include "glhf/primitive.h"
+#include "glhf/primitive/primitive.h"
+#include <array>
+#include <span>
+
+template <typename T, typename Container> std::span<T> make_span(Container container) {
+    return {(T *)container.data(),
+            container.size() * sizeof(typename Container::value_type) / sizeof(T)};
+}
 
 namespace glhf {
-
 struct AttributerPointer {
     enum Size : uint8_t { SCALAR = 1, VEC2 = 2, VEC3 = 3, VEC4 = 4 };
     uint8_t size;
@@ -15,25 +21,33 @@ template <std::size_t N> struct PrimitiveDescriptor {
     std::array<AttributerPointer, N> attributes;
     uint16_t usage;
 
-    Primitive createPrimitive(const std::array<std::span<uint8_t>, N> &data, size_t count) const {
-        Primitive primitive;
-        _createVertexArray(data, primitive);
-        primitive.count = static_cast<uint32_t>(count);
+    std::shared_ptr<Primitive> createPrimitive(const std::array<std::span<uint8_t>, N> &data,
+                                               size_t count) const {
+        std::shared_ptr<Primitive> primitive{new glhf::Primitive};
+        _createVertexArray(data, *primitive);
+        primitive->count = static_cast<uint32_t>(count);
         glBindVertexArray(0);
         return primitive;
     }
 
     template <typename T = uint16_t>
-    Primitive createPrimitive(const std::array<std::span<uint8_t>, N> &data,
-                              std::span<T> indices) const {
-        Primitive primitive;
-        _createVertexArray(data, primitive);
-        glGenBuffers(1, &primitive.elementBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, primitive.elementBuffer);
+    std::shared_ptr<Primitive> createPrimitive(const std::array<std::span<uint8_t>, N> &data,
+                                               std::span<T> indices) const {
+        std::shared_ptr<Primitive> primitive{new glhf::Primitive};
+        _createVertexArray(data, *primitive);
+        glGenBuffers(1, &primitive->elementBuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, primitive->elementBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(), usage);
-        primitive.count = static_cast<uint32_t>(indices.size());
+        primitive->count = static_cast<uint32_t>(indices.size());
         glBindVertexArray(0);
         return primitive;
+    }
+
+    template <typename T> std::shared_ptr<Primitive> createPrimitive(const T &t) const {
+        return createPrimitive({std::span<uint8_t>((uint8_t *)t.positions, sizeof(t.positions)),
+                                std::span<uint8_t>((uint8_t *)t.normals, sizeof(t.normals)),
+                                std::span<uint8_t>((uint8_t *)t.uvs, sizeof(t.uvs))},
+                               std::span<const uint16_t>(t.indices));
     }
 
     constexpr operator size_t() const { return N; }

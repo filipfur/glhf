@@ -5,131 +5,78 @@
 
 namespace glhf {
 struct TRS {
-  protected:
-    enum Validity {
-        VALID,
-        INVALID,
-        INVALID_EULER,
-    };
+    const glm::vec3 &translation() const { return _translation; }
+    const glm::quat &rotation() const { return _rotation; }
+    const glm::vec3 &scale() const { return _scale; }
+#ifdef GLHF_USE_TRS_EULER
+    const glm::vec3 &euler() const { return _euler; }
+#endif
 
-  public:
-    template <typename T> struct Attribute {
-        Attribute(TRS::Validity &validity, TRS::Validity invalidation, const T &t)
-            : _validity{validity}, _invalidation{invalidation}, _t{t}, x{_t.x}, y{_t.y}, z{_t.z} {}
-        Attribute &operator=(const T &t) {
-            _t = t;
-            _validity = _invalidation;
-            return *this;
+    glm::vec3 &translation() {
+        if (_validity == VALID) {
+            _validity = INVALID;
         }
-        Attribute &operator+=(const T &t) {
-            _t += t;
-            _validity = _invalidation;
-            return *this;
+        return _translation;
+    }
+
+    glm::quat &rotation() {
+        _validity = INVALID_ROTATION;
+        return _rotation;
+    }
+
+    glm::vec3 &scale() {
+        if (_validity == VALID) {
+            _validity = INVALID;
         }
-        Attribute &operator-=(const T &t) {
-            _t -= t;
-            _validity = _invalidation;
-            return *this;
-        }
-        Attribute &operator*=(const T &t) {
-            _t *= t;
-            _validity = _invalidation;
-            return *this;
-        }
-        Attribute &operator/=(const T &t) {
-            _t /= t;
-            _validity = _invalidation;
-            return *this;
-        }
+        return _scale;
+    }
 
-        const T &data() const { return _t; }
-        T &data() { return _t; }
+#ifdef GLHF_USE_TRS_EULER
+    glm::quat &euler() {
+        _validity = INVALID_EULER;
+        return _euler;
+    }
+#endif
 
-        Validity &_validity;
-        Validity _invalidation;
-        T _t;
-        const float &x;
-        const float &y;
-        const float &z;
-    };
+    glm::vec3 globalTranslation() const {
+        auto &m = transformation();
+        return {m[3][0], m[3][1], m[3][2]};
+    }
 
-    TRS()
-        : translation{_validity, INVALID, {0.0f, 0.0f, 0.0f}},
-          scale{_validity, INVALID, {1.0f, 1.0f, 1.0f}},
-          rotation{_validity, INVALID, {1.0f, 0.0f, 0.0f, 0.0f}},
-          euler{_validity, INVALID_EULER, {0.0f, 0.0f, 0.0f}} {}
-
-    Attribute<glm::vec3> translation;
-    Attribute<glm::vec3> scale;
-    Attribute<glm::quat> rotation;
-    Attribute<glm::vec3> euler;
-
-    glm::mat4 &model();
-    glm::vec3 position();
-
-    TRS *parent();
-    void setParent(TRS *parent);
-
-    void setTransform(TRS &other) {
-        _model = other.model();
+    const glm::mat4 &transformation() const { return _transformation; }
+    const glm::mat4 &transformation();
+    void setTransformation(const glm::mat4 &transformation) {
+        // TODO: oversee
         _validity = VALID;
+        _transformation = transformation;
     }
 
-    const glm::vec3 &t() { return translation.data(); }
-    glm::vec3 xz() { return glm::vec3{translation.x, 0.0f, translation.z}; }
+    const TRS *parent() const { return this; }
+    void setParent(TRS *trs) { _parent = trs; }
 
-    const glm::quat &r() { return rotation.data(); }
-
-    const glm::vec3 &s() { return scale.data(); }
-
-    TRS &setTranslation(const glm::vec3 &t) {
-        translation = t;
-        return *this;
-    }
-    TRS &setTranslation(float x, float y, float z) { return setTranslation({x, y, z}); }
-    TRS &setRotation(const glm::quat &q) {
-        rotation = q;
-        return *this;
-    }
-    TRS &setEuler(const glm::vec3 &r) {
-        euler = r;
-        return *this;
-    }
-    TRS &setEuler(float x, float y, float z) { return setEuler({x, y, z}); }
-    TRS &setScale(const glm::vec3 &s) {
-        scale = s;
-        return *this;
-    }
-    TRS &setScale(float x, float y, float z) { return setScale({x, y, z}); }
-    TRS &setScale(float s) { return setScale(glm::vec3{s}); }
-
-    TRS &applyTranslation(const glm::vec3 &t) {
-        translation += t;
-        return *this;
-    }
-    TRS &applyTranslation(float x, float y, float z) { return applyTranslation({x, y, z}); }
-    TRS &applyRotation(const glm::quat &q) {
-        rotation += q;
-        return *this;
-    }
-    TRS &applyEuler(const glm::vec3 &r) {
-        euler += r;
-        return *this;
-    }
-    TRS &applyEuler(float x, float y, float z) { return applyEuler({x, y, z}); }
-    TRS &applyScale(const glm::vec3 &s) {
-        scale += s;
-        return *this;
-    }
-    TRS &applyScale(float x, float y, float z) { return applyScale({x, y, z}); }
-    TRS &applyScale(float s) { return applyScale(glm::vec3{s}); }
-
+    bool valid() const { return _validity == VALID; }
     void invalidate() { _validity = INVALID; }
-    bool isValid() const { return _validity == VALID; }
 
   private:
-    Validity _validity{INVALID};
-    glm::mat4 _model{1.0f};
+    enum Validity {
+        INVALID,
+        INVALID_ROTATION,
+#ifdef GLHF_USE_TRS_EULER
+        INVALID_EULER,
+#endif
+        VALID,
+    };
+    glm::vec3 _translation{0.0f, 0.0f, 0.0f};
+    glm::quat _rotation{1.0f, 0.0f, 0.0f, 0.0f};
+    glm::vec3 _scale{0.0f, 0.0f, 0.0f};
+#ifdef GLHF_USE_TRS_EULER
+    glm::vec3 _euler{0.0f, 0.0f, 0.0f};
+#endif
     TRS *_parent{nullptr};
+    glm::mat4 _rotationMatrix{1.0f};
+    glm::mat4 _transformation{1.0f};
+    Validity _validity{VALID};
+    uint8_t _localVersion{0};
+    uint8_t _parentVersion{0};
 };
 } // namespace glhf

@@ -48,6 +48,16 @@ glhf::Texture::Texture(const char *filepath, bool flip, uint32_t type) {
 
 glhf::Texture::Texture(const uint8_t *addr, uint32_t len, bool flip, uint32_t type) {
     int iw, ih, ic;
+#if 0
+    char fname[] = "____.png";
+    fname[0] = 'a' + rand() % ('z' - 'a');
+    fname[1] = 'a' + rand() % ('z' - 'a');
+    fname[2] = 'a' + rand() % ('z' - 'a');
+    fname[3] = 'a' + rand() % ('z' - 'a');
+    FILE *f = fopen(fname, "wb");
+    fwrite(addr, 1, len, f);
+    fclose(f);
+#endif
     stbi_set_flip_vertically_on_load(flip);
     const uint8_t *idata = stbi_load_from_memory((uint8_t *)addr, len, &iw, &ih, &ic, 0);
     create();
