@@ -3,6 +3,7 @@
 #include "glhf/trs.h"
 #include "glhf/uniformbuffer.h"
 #include <glm/glm.hpp>
+#include <memory>
 #include <span>
 #include <string_view>
 

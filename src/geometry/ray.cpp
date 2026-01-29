@@ -41,6 +41,7 @@ std::optional<Intersection> Ray::intersect(const Sphere &sphere) {
     return Intersection{
         .origin = contact,
         .normal = glm::normalize(contact - sphere.origin),
+        .depth = a,
     };
 }
 
