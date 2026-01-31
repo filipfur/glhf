@@ -50,7 +50,7 @@ struct Primitive {
             glDeleteVertexArrays(1, &vertexArray);
         }
         if (!buffers.empty()) {
-            glDeleteBuffers(buffers.size(), buffers.data());
+            glDeleteBuffers(static_cast<GLsizei>(buffers.size()), buffers.data());
         }
         if (elementBuffer) {
             glDeleteBuffers(1, &elementBuffer);

@@ -44,14 +44,14 @@ struct Collection {
 
     void fromGLB(const char *glb, Options options = NO_OPTIONS);
 
-    template <class UnaryPred> glhf::Node *findNode(UnaryPred p) {
+    template <class UnaryPred> std::shared_ptr<glhf::Node> findNode(UnaryPred p) {
         auto it = std::find_if(nodes.begin(), nodes.end(), p);
-        return it == nodes.end() ? nullptr : &(*it);
+        return it == nodes.end() ? nullptr : *it;
     }
 
-    template <class UnaryPred> glhf::Mesh *findMesh(UnaryPred p) {
+    template <class UnaryPred> std::shared_ptr<glhf::Mesh> findMesh(UnaryPred p) {
         auto it = std::find_if(meshes.begin(), meshes.end(), p);
-        return it == meshes.end() ? nullptr : &(*it);
+        return it == meshes.end() ? nullptr : *it;
     }
 
     Gltf gltf;
