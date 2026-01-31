@@ -26,6 +26,10 @@ static constexpr unsigned int WINDOW_WIDTH = 720u;
 static constexpr unsigned int WINDOW_HEIGHT = 480u;
 static constexpr glm::vec2 WINDOW_SIZE = {WINDOW_WIDTH, WINDOW_HEIGHT};
 
+constexpr glhf::Pattern<8, 8, glhf::Texture::RGB> checkersPattern{[](uint32_t x, uint32_t y) {
+    return glm::vec4(glm::vec3(0.75f + ((y % 2 + x) % 2) * 0.25f), 1.0f);
+}};
+
 struct Application : public glhf::IApplication {
     void init(int width, int height) override {
         (void)width;
@@ -69,6 +73,12 @@ struct Application : public glhf::IApplication {
                 .textures = {},
             }),
             glhf::PositionNormalUV.attributes.size(), std::span<glm::mat4>(instances)));
+
+        _instanceFactory->material->textures.emplace(
+            GL_TEXTURE0,
+            new glhf::Texture(checkersPattern.data, checkersPattern.width, checkersPattern.height,
+                              static_cast<glhf::Texture::Channels>(checkersPattern.channels),
+                              GL_UNSIGNED_BYTE));
 
         _instShader.reset(new glhf::ShaderProgram(
             {{"u_model", glm::mat4(1.0f)}, {"u_texture", 0}, {"u_color", glm::vec4(1.0f)}},

@@ -43,7 +43,6 @@ template <typename T> struct InstanceFactory {
                                 instances.size());
     }
 
-  private:
     void setupAttributePointers(size_t indexOffset);
 
     std::shared_ptr<Primitive> primitive;
