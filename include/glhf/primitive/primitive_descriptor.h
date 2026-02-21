@@ -43,7 +43,20 @@ template <std::size_t N> struct PrimitiveDescriptor {
         return primitive;
     }
 
-    template <typename T> std::shared_ptr<Primitive> createPrimitive(const T &t) const {
+    template <typename T> std::shared_ptr<Primitive> createPrimitiveXYUV(const T &t) const {
+        return createPrimitive(
+            {
+                std::span<uint8_t>((uint8_t *)t.vertices, sizeof(t.vertices)),
+            },
+            std::span<const uint16_t>(t.indices));
+    }
+
+    template <typename T> std::shared_ptr<Primitive> createPrimitiveXYZ(const T &t) const {
+        return createPrimitive({std::span<uint8_t>((uint8_t *)t.positions, sizeof(t.positions))},
+                               std::span<const uint16_t>(t.indices));
+    }
+
+    template <typename T> std::shared_ptr<Primitive> createPrimitivePosNorUV(const T &t) const {
         return createPrimitive({std::span<uint8_t>((uint8_t *)t.positions, sizeof(t.positions)),
                                 std::span<uint8_t>((uint8_t *)t.normals, sizeof(t.normals)),
                                 std::span<uint8_t>((uint8_t *)t.uvs, sizeof(t.uvs))},
